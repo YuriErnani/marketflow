@@ -1,31 +1,25 @@
 package br.com.marketflow.usuario.controller;
 
-import br.com.marketflow.usuario.dto.CadastroRequestDTO;
-import br.com.marketflow.usuario.dto.LoginRequestDTO;
-import br.com.marketflow.usuario.dto.TokenResponseDTO;
+import br.com.marketflow.infra.security.UsuarioAutenticadoDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
 import br.com.marketflow.usuario.service.UsuarioService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    @PostMapping("/cadastro")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UsuarioResponseDTO cadastrar(@Valid @RequestBody CadastroRequestDTO request) {
-        return usuarioService.cadastrar(request);
-    }
-
-    @PostMapping("/login")
-    public TokenResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
-        return usuarioService.login(request);
+    @GetMapping("/minha-conta")
+    public UsuarioResponseDTO buscarDados(@AuthenticationPrincipal UsuarioAutenticadoDTO usuario) {
+        return usuarioService
+                .buscarPorId(usuario.id());
     }
 
 }
