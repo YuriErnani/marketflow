@@ -45,4 +45,17 @@ public class Usuario {
         this.criadoEm = Instant.now();
     }
 
+    public void atualizarDados(String nome, String email) {
+        this.nome = nome;
+        this.email = email;
+    }
+
+    public void alterarSenha(String senhaHash) {
+        this.senhaHash = senhaHash;
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
+
 }

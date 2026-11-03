@@ -2,6 +2,7 @@ package br.com.marketflow.infra.exception;
 
 import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
 import br.com.marketflow.usuario.exception.EmailJaCadastradoException;
+import br.com.marketflow.usuario.exception.SenhaAtualInvalidaException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,6 +44,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.UNAUTHORIZED,
                 ex.getMessage());
         problema.setTitle("Falha na Autenticação");
+
+        return problema;
+    }
+
+    @ExceptionHandler(SenhaAtualInvalidaException.class)
+    public ProblemDetail tratarSenhaAtualInvalida(SenhaAtualInvalidaException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage());
+        problema.setTitle("Senha Inválida");
 
         return problema;
     }
