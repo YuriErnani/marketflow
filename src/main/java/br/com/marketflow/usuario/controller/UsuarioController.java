@@ -1,6 +1,8 @@
 package br.com.marketflow.usuario.controller;
 
 import br.com.marketflow.usuario.dto.CadastroRequestDTO;
+import br.com.marketflow.usuario.dto.LoginRequestDTO;
+import br.com.marketflow.usuario.dto.TokenResponseDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
 import br.com.marketflow.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -18,8 +20,12 @@ public class UsuarioController {
     @PostMapping("/cadastro")
     @ResponseStatus(HttpStatus.CREATED)
     public UsuarioResponseDTO cadastrar(@Valid @RequestBody CadastroRequestDTO request) {
-        return usuarioService
-                .cadastrar(request);
+        return usuarioService.cadastrar(request);
+    }
+
+    @PostMapping("/login")
+    public TokenResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
+        return usuarioService.login(request);
     }
 
 }

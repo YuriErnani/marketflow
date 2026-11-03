@@ -1,5 +1,6 @@
 package br.com.marketflow.infra.exception;
 
+import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
 import br.com.marketflow.usuario.exception.EmailJaCadastradoException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
@@ -32,6 +33,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "A operação conflita com dados já existentes."
         );
         problema.setTitle("Conflito de Dados");
+
+        return problema;
+    }
+
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ProblemDetail tratarCredenciaisInvalidas(CredenciaisInvalidasException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage());
+        problema.setTitle("Falha na Autenticação");
 
         return problema;
     }
