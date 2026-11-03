@@ -1,4 +1,4 @@
-package br.com.marketflow.marketflow;
+package br.com.marketflow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
