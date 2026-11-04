@@ -53,12 +53,4 @@ public class AuthService {
         return new TokenResponseDTO(tokenService.gerarToken(usuario), "Bearer");
     }
 
-    @Transactional(readOnly = true)
-    public UsuarioResponseDTO buscarPorId(Long id) {
-        return usuarioRepository
-                .findById(id)
-                .map(UsuarioResponseDTO::from)
-                .orElseThrow(CredenciaisInvalidasException::new);
-    }
-
 }

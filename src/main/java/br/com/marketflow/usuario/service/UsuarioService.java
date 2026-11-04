@@ -3,7 +3,9 @@ package br.com.marketflow.usuario.service;
 import br.com.marketflow.usuario.dto.AlterarSenhaRequestDTO;
 import br.com.marketflow.usuario.dto.AtualizarContaRequestDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
+import br.com.marketflow.usuario.entity.Perfil;
 import br.com.marketflow.usuario.entity.Usuario;
+import br.com.marketflow.usuario.exception.AdminNaoPodeSerDesativadoException;
 import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
 import br.com.marketflow.usuario.exception.EmailJaCadastradoException;
 import br.com.marketflow.usuario.exception.SenhaAtualInvalidaException;
@@ -57,7 +59,12 @@ public class UsuarioService {
 
     @Transactional
     public void desativar(Long id) {
-        buscarUsuario(id).desativar();
+        var usuario = buscarUsuario(id);
+
+        if (usuario.getPerfil() == Perfil.ADMIN)
+            throw new AdminNaoPodeSerDesativadoException();
+
+        usuario.desativar();
     }
 
     private Usuario buscarUsuario(Long id) {

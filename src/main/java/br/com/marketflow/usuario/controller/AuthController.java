@@ -15,17 +15,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService usuarioService;
+    private final AuthService authService;
 
     @PostMapping("/cadastro")
     @ResponseStatus(HttpStatus.CREATED)
     public UsuarioResponseDTO cadastrar(@Valid @RequestBody CadastroRequestDTO request) {
-        return usuarioService.cadastrar(request);
+        return authService.cadastrar(request);
     }
 
     @PostMapping("/login")
     public TokenResponseDTO login(@Valid @RequestBody LoginRequestDTO request) {
-        return usuarioService.login(request);
+        return authService.login(request);
     }
 
 }

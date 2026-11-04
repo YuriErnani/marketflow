@@ -33,7 +33,7 @@ public class AdminInitializer implements ApplicationRunner {
 
         var emailNormalizado = email.trim().toLowerCase(Locale.ROOT);
 
-        if (usuarioRepository.existsByEmail(emailNormalizado))
+        if (usuarioRepository.existsByPerfil(Perfil.ADMIN) || usuarioRepository.existsByEmail(emailNormalizado))
             return;
 
         var admin = new Usuario("Administrador", emailNormalizado, passwordEncoder.encode(senha), Perfil.ADMIN);

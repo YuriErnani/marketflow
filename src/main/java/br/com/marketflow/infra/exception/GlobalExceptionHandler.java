@@ -1,5 +1,6 @@
 package br.com.marketflow.infra.exception;
 
+import br.com.marketflow.usuario.exception.AdminNaoPodeSerDesativadoException;
 import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
 import br.com.marketflow.usuario.exception.EmailJaCadastradoException;
 import br.com.marketflow.usuario.exception.SenhaAtualInvalidaException;
@@ -54,6 +55,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage());
         problema.setTitle("Senha Inválida");
+
+        return problema;
+    }
+
+    @ExceptionHandler(AdminNaoPodeSerDesativadoException.class)
+    public ProblemDetail tratarDesativacaoDeAdmin(AdminNaoPodeSerDesativadoException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage());
+        problema.setTitle("Operação Não Permitida");
 
         return problema;
     }

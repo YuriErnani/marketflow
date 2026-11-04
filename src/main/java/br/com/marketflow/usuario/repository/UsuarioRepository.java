@@ -1,5 +1,6 @@
 package br.com.marketflow.usuario.repository;
 
+import br.com.marketflow.usuario.entity.Perfil;
 import br.com.marketflow.usuario.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,5 +11,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    boolean existsByPerfil(Perfil perfil);
 
 }
