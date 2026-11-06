@@ -1,8 +1,8 @@
-package br.com.marketflow.infra.security;
+package br.com.marketflow.usuario.dto;
 
 import br.com.marketflow.usuario.entity.Perfil;
 
-public record UsuarioAutenticadoDTO(
+public record UsuarioAuthRequestDTO(
         Long id,
         Perfil perfil
 ) {}

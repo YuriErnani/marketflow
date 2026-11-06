@@ -25,7 +25,7 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
-    public UsuarioResponseDTO buscarPorId(Long id) {
+    public UsuarioResponseDTO buscarUsuario(Long id) {
         return usuarioRepository
                 .findById(id)
                 .map(UsuarioResponseDTO::from)
@@ -33,8 +33,8 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO atualizar(Long id, AtualizarContaRequestDTO request) {
-        var usuario = buscarUsuario(id);
+    public UsuarioResponseDTO atualizarUsuario(Long id, AtualizarContaRequestDTO request) {
+        var usuario = buscarUsuarioPorId(id);
 
         var email = request.email().trim().toLowerCase(Locale.ROOT);
 
@@ -49,7 +49,7 @@ public class UsuarioService {
 
     @Transactional
     public void alterarSenha(Long id, AlterarSenhaRequestDTO request) {
-        var usuario = buscarUsuario(id);
+        var usuario = buscarUsuarioPorId(id);
 
         if (!passwordEncoder.matches(request.senhaAtual(), usuario.getSenhaHash()))
             throw new SenhaAtualInvalidaException();
@@ -58,8 +58,8 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void desativar(Long id) {
-        var usuario = buscarUsuario(id);
+    public void desativarUsuario(Long id) {
+        var usuario = buscarUsuarioPorId(id);
 
         if (usuario.getPerfil() == Perfil.ADMIN)
             throw new AdminNaoPodeSerDesativadoException();
@@ -67,8 +67,9 @@ public class UsuarioService {
         usuario.desativar();
     }
 
-    private Usuario buscarUsuario(Long id) {
-        return usuarioRepository.findById(id)
+    private Usuario buscarUsuarioPorId(Long id) {
+        return usuarioRepository
+                .findById(id)
                 .orElseThrow(CredenciaisInvalidasException::new);
     }
 

@@ -1,4 +1,4 @@
-package br.com.marketflow.usuario.dto;
+package br.com.marketflow.usuario.dto.autenticacao;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,8 +1,8 @@
 package br.com.marketflow.usuario.controller;
 
-import br.com.marketflow.usuario.dto.CadastroRequestDTO;
-import br.com.marketflow.usuario.dto.LoginRequestDTO;
-import br.com.marketflow.usuario.dto.TokenResponseDTO;
+import br.com.marketflow.usuario.dto.autenticacao.CadastroRequestDTO;
+import br.com.marketflow.usuario.dto.autenticacao.LoginRequestDTO;
+import br.com.marketflow.usuario.dto.autenticacao.TokenResponseDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
 import br.com.marketflow.usuario.service.AuthService;
 import jakarta.validation.Valid;
@@ -19,8 +19,8 @@ public class AuthController {
 
     @PostMapping("/cadastro")
     @ResponseStatus(HttpStatus.CREATED)
-    public UsuarioResponseDTO cadastrar(@Valid @RequestBody CadastroRequestDTO request) {
-        return authService.cadastrar(request);
+    public UsuarioResponseDTO cadastrarUsuario(@Valid @RequestBody CadastroRequestDTO request) {
+        return authService.cadastrarUsuario(request);
     }
 
     @PostMapping("/login")

@@ -39,6 +39,14 @@ public class SecurityConfiguration {
                                 "/error")
                         .permitAll()
 
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/categorias/**")
+                        .permitAll()
+
+                        .requestMatchers("/api/v1/categorias/**")
+                        .hasRole("ADMIN")
+
                         .anyRequest().authenticated())
 
                 .exceptionHandling(erros -> erros

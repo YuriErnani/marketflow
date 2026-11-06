@@ -1,9 +1,9 @@
 package br.com.marketflow.usuario.service;
 
 import br.com.marketflow.infra.security.TokenService;
-import br.com.marketflow.usuario.dto.CadastroRequestDTO;
-import br.com.marketflow.usuario.dto.LoginRequestDTO;
-import br.com.marketflow.usuario.dto.TokenResponseDTO;
+import br.com.marketflow.usuario.dto.autenticacao.CadastroRequestDTO;
+import br.com.marketflow.usuario.dto.autenticacao.LoginRequestDTO;
+import br.com.marketflow.usuario.dto.autenticacao.TokenResponseDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
 import br.com.marketflow.usuario.entity.Perfil;
 import br.com.marketflow.usuario.entity.Usuario;
@@ -26,7 +26,7 @@ public class AuthService {
     private final TokenService tokenService;
 
     @Transactional
-    public UsuarioResponseDTO cadastrar(CadastroRequestDTO request) {
+    public UsuarioResponseDTO cadastrarUsuario(CadastroRequestDTO request) {
         var email = request.email().trim().toLowerCase(Locale.ROOT);
 
         if (usuarioRepository.existsByEmail(email))

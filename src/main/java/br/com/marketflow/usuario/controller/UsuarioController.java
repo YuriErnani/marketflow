@@ -1,6 +1,6 @@
 package br.com.marketflow.usuario.controller;
 
-import br.com.marketflow.infra.security.UsuarioAutenticadoDTO;
+import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
 import br.com.marketflow.usuario.dto.AlterarSenhaRequestDTO;
 import br.com.marketflow.usuario.dto.AtualizarContaRequestDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
@@ -19,25 +19,25 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @GetMapping
-    public UsuarioResponseDTO buscarDados(@AuthenticationPrincipal UsuarioAutenticadoDTO usuario) {
-        return usuarioService.buscarPorId(usuario.id());
+    public UsuarioResponseDTO buscarUsuario(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+        return usuarioService.buscarUsuario(usuario.id());
     }
 
     @PutMapping
-    public UsuarioResponseDTO atualizar(@AuthenticationPrincipal UsuarioAutenticadoDTO usuario, @Valid @RequestBody AtualizarContaRequestDTO request) {
-        return usuarioService.atualizar(usuario.id(), request);
+    public UsuarioResponseDTO atualizarUsuario(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @Valid @RequestBody AtualizarContaRequestDTO request) {
+        return usuarioService.atualizarUsuario(usuario.id(), request);
     }
 
     @PutMapping("/senha")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void alterarSenha(@AuthenticationPrincipal UsuarioAutenticadoDTO usuario, @Valid @RequestBody AlterarSenhaRequestDTO request) {
+    public void alterarSenha(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @Valid @RequestBody AlterarSenhaRequestDTO request) {
         usuarioService.alterarSenha(usuario.id(), request);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void desativar(@AuthenticationPrincipal UsuarioAutenticadoDTO usuario) {
-        usuarioService.desativar(usuario.id());
+    public void desativarUsuario(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+        usuarioService.desativarUsuario(usuario.id());
     }
 
 }

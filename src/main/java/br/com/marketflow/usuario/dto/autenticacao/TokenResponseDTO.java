@@ -1,4 +1,4 @@
-package br.com.marketflow.usuario.dto;
+package br.com.marketflow.usuario.dto.autenticacao;
 
 public record TokenResponseDTO(
         String token,

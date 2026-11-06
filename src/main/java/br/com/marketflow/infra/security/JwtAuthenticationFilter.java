@@ -1,5 +1,6 @@
 package br.com.marketflow.infra.security;
 
+import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
 import br.com.marketflow.usuario.entity.Usuario;
 import br.com.marketflow.usuario.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
@@ -43,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void autenticar(Usuario usuario) {
-        var principal = new UsuarioAutenticadoDTO(usuario.getId(), usuario.getPerfil());
+        var principal = new UsuarioAuthRequestDTO(usuario.getId(), usuario.getPerfil());
 
         var permissoes = List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getPerfil().name()));
 
