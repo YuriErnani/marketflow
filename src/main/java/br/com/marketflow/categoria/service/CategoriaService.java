@@ -61,6 +61,11 @@ public class CategoriaService {
                 .from(categoria);
     }
 
+    @Transactional(readOnly = true)
+    public Categoria buscarEntidadePorId(Long id) {
+        return buscarCategoria(id);
+    }
+
     private Categoria buscarCategoria(Long id) {
         return categoriaRepository.findById(id)
                 .orElseThrow(() -> new CategoriaNaoEncontradaException());

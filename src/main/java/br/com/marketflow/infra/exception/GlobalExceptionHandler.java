@@ -2,6 +2,7 @@ package br.com.marketflow.infra.exception;
 
 import br.com.marketflow.categoria.exception.CategoriaJaExisteException;
 import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
+import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
 import br.com.marketflow.usuario.exception.AdminNaoPodeSerDesativadoException;
 import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
 import br.com.marketflow.usuario.exception.EmailJaCadastradoException;
@@ -87,6 +88,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.CONFLICT,
                 ex.getMessage());
         problema.setTitle("CategoriaRepository Já Existe");
+
+        return problema;
+    }
+
+    @ExceptionHandler(ProdutoNaoEncontradoException.class)
+    public ProblemDetail tratarProdutoNaoEncontrado(ProdutoNaoEncontradoException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problema.setTitle("Produto Não Encontrado");
 
         return problema;
     }
