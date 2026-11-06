@@ -1,18 +1,26 @@
 package br.com.marketflow.produto.service;
 
 import br.com.marketflow.categoria.service.CategoriaService;
+import br.com.marketflow.infra.dto.PaginaResponseDTO;
+import br.com.marketflow.infra.exception.OrdenacaoInvalidaException;
 import br.com.marketflow.produto.dto.ProdutoRequestDTO;
 import br.com.marketflow.produto.dto.ProdutoResponseDTO;
 import br.com.marketflow.produto.entity.Produto;
 import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
 import br.com.marketflow.produto.repository.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ProdutoService {
+
+    private static final Set<String> CAMPOS_ORDENACAO = Set.of("nome", "preco", "criadoEm");
 
     private final ProdutoRepository produtoRepository;
     private final CategoriaService categoriaService;
@@ -62,9 +70,36 @@ public class ProdutoService {
         return ProdutoResponseDTO.from(produto);
     }
 
+    @Transactional(readOnly = true)
+    public PaginaResponseDTO<ProdutoResponseDTO> listar(
+            String nome,
+            Long categoriaId,
+            BigDecimal precoMin,
+            BigDecimal precoMax,
+            boolean incluirInativos,
+            Pageable pageable) {
+
+        validarOrdenacao(pageable);
+
+        var termo = nome == null ? "" : nome.trim();
+
+        var pagina = produtoRepository
+                .buscar(termo, categoriaId, precoMin, precoMax, incluirInativos, pageable)
+                .map(ProdutoResponseDTO::from);
+
+        return PaginaResponseDTO.from(pagina);
+    }
+
     private Produto buscarProdutoPorId(Long id) {
         return produtoRepository.findById(id)
                 .orElseThrow(ProdutoNaoEncontradoException::new);
+    }
+
+    private void validarOrdenacao(Pageable pageable) {
+        pageable.getSort().forEach(ordem -> {
+            if (!CAMPOS_ORDENACAO.contains(ordem.getProperty()))
+                throw new OrdenacaoInvalidaException(ordem.getProperty());
+        });
     }
 
 }

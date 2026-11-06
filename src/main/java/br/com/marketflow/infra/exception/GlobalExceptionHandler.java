@@ -102,6 +102,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problema;
     }
 
+    @ExceptionHandler(OrdenacaoInvalidaException.class)
+    public ProblemDetail tratarOrdenacaoInvalida(OrdenacaoInvalidaException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage());
+        problema.setTitle("Ordenação Inválida");
+
+        return problema;
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Map<String, String> erros = new LinkedHashMap<>();

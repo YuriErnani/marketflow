@@ -1,5 +1,6 @@
 package br.com.marketflow.produto.controller;
 
+import br.com.marketflow.infra.dto.PaginaResponseDTO;
 import br.com.marketflow.produto.dto.AlterarAtivacaoRequestDTO;
 import br.com.marketflow.produto.dto.ProdutoRequestDTO;
 import br.com.marketflow.produto.dto.ProdutoResponseDTO;
@@ -8,9 +9,13 @@ import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
 import br.com.marketflow.usuario.entity.Perfil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/v1/produtos")
@@ -20,10 +25,8 @@ public class ProdutoController {
     private final ProdutoService produtoService;
 
     @GetMapping("/{id}")
-    public ProdutoResponseDTO buscarProdutoPorId(@PathVariable Long id, @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
-        var admin = usuario != null && usuario.perfil() == Perfil.ADMIN;
-
-        return produtoService.buscarProduto(id, admin);
+    public ProdutoResponseDTO buscarPorId(@PathVariable Long id, @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+        return produtoService.buscarProduto(id, ehAdmin(usuario));
     }
 
     @PostMapping
@@ -40,6 +43,22 @@ public class ProdutoController {
     @PatchMapping("/{id}/ativacao")
     public ProdutoResponseDTO ativarProduto(@PathVariable Long id, @Valid @RequestBody AlterarAtivacaoRequestDTO request) {
         return produtoService.ativarProduto(id, request.ativo());
+    }
+
+    @GetMapping
+    public PaginaResponseDTO<ProdutoResponseDTO> listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) BigDecimal precoMin,
+            @RequestParam(required = false) BigDecimal precoMax,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable,
+            @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+
+        return produtoService.listar(nome, categoriaId, precoMin, precoMax, ehAdmin(usuario), pageable);
+    }
+
+    private boolean ehAdmin(UsuarioAuthRequestDTO usuario) {
+        return usuario != null && usuario.perfil() == Perfil.ADMIN;
     }
 
 }
