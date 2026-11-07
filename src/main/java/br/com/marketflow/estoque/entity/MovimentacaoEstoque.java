@@ -27,13 +27,21 @@ public class MovimentacaoEstoque {
     @Column(nullable = false, updatable = false)
     private int quantidade;
 
+    @Column(name = "pedido_id", updatable = false)
+    private Long pedidoId;
+
     @Column(name = "criado_em", nullable = false, updatable = false)
     private Instant criadoEm;
 
     public MovimentacaoEstoque(Long produtoId, TipoMovimentacao tipo, int quantidade) {
+        this(produtoId, tipo, quantidade, null);
+    }
+
+    public MovimentacaoEstoque(Long produtoId, TipoMovimentacao tipo, int quantidade, Long pedidoId) {
         this.produtoId = produtoId;
         this.tipo = tipo;
         this.quantidade = quantidade;
+        this.pedidoId = pedidoId;
         this.criadoEm = Instant.now();
     }
 

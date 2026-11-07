@@ -20,8 +20,8 @@ public class EstoqueController {
     private final EstoqueService estoqueService;
 
     @GetMapping
-    public EstoqueResponseDTO consultar(@PathVariable Long produtoId) {
-        return estoqueService.consultar(produtoId);
+    public EstoqueResponseDTO consultarEstoque(@PathVariable Long produtoId) {
+        return estoqueService.consultarEstoque(produtoId);
     }
 
     @PostMapping("/entradas")

@@ -12,4 +12,6 @@ public interface ItemCarrinhoRepository extends JpaRepository<ItemCarrinho, Long
 
     Optional<ItemCarrinho> findByUsuarioIdAndProdutoId(Long usuarioId, Long produtoId);
 
+    void deleteByUsuarioId(Long usuarioId);
+
 }

@@ -34,6 +34,11 @@ public class CategoriaService {
                 .from(buscarCategoria(id));
     }
 
+    private Categoria buscarCategoria(Long id) {
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new CategoriaNaoEncontradaException());
+    }
+
     @Transactional
     public CategoriaResponseDTO criarCategoria(CategoriaRequestDTO request) {
         var nome = request.nome().trim();
@@ -64,11 +69,6 @@ public class CategoriaService {
     @Transactional(readOnly = true)
     public Categoria buscarEntidadePorId(Long id) {
         return buscarCategoria(id);
-    }
-
-    private Categoria buscarCategoria(Long id) {
-        return categoriaRepository.findById(id)
-                .orElseThrow(() -> new CategoriaNaoEncontradaException());
     }
 
 }

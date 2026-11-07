@@ -1,5 +1,6 @@
 package br.com.marketflow.estoque.entity;
 
+import br.com.marketflow.estoque.exception.EstoqueInsuficienteException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,6 +33,14 @@ public class Estoque {
 
     public void registrarEntrada(int quantidade) {
         this.quantidadeDisponivel += quantidade;
+    }
+
+    public void reservar(int quantidade) {
+        if (quantidade > this.quantidadeDisponivel)
+            throw new EstoqueInsuficienteException();
+
+        this.quantidadeDisponivel -= quantidade;
+        this.quantidadeReservada += quantidade;
     }
 
 }

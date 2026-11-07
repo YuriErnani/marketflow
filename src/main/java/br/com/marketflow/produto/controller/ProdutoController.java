@@ -24,8 +24,24 @@ public class ProdutoController {
 
     private final ProdutoService produtoService;
 
+    @GetMapping
+    public PaginaResponseDTO<ProdutoResponseDTO> listarProdutos(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) BigDecimal precoMin,
+            @RequestParam(required = false) BigDecimal precoMax,
+            @PageableDefault(size = 10, sort = "nome") Pageable pageable,
+            @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+
+        return produtoService.listarProdutos(nome, categoriaId, precoMin, precoMax, ehAdmin(usuario), pageable);
+    }
+
+    private boolean ehAdmin(UsuarioAuthRequestDTO usuario) {
+        return usuario != null && usuario.perfil() == Perfil.ADMIN;
+    }
+
     @GetMapping("/{id}")
-    public ProdutoResponseDTO buscarPorId(@PathVariable Long id, @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+    public ProdutoResponseDTO buscarProdutoPorId(@PathVariable Long id, @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
         return produtoService.buscarProduto(id, ehAdmin(usuario));
     }
 
@@ -43,22 +59,6 @@ public class ProdutoController {
     @PatchMapping("/{id}/ativacao")
     public ProdutoResponseDTO ativarProduto(@PathVariable Long id, @Valid @RequestBody AlterarAtivacaoRequestDTO request) {
         return produtoService.ativarProduto(id, request.ativo());
-    }
-
-    @GetMapping
-    public PaginaResponseDTO<ProdutoResponseDTO> listar(
-            @RequestParam(required = false) String nome,
-            @RequestParam(required = false) Long categoriaId,
-            @RequestParam(required = false) BigDecimal precoMin,
-            @RequestParam(required = false) BigDecimal precoMax,
-            @PageableDefault(size = 10, sort = "nome") Pageable pageable,
-            @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
-
-        return produtoService.listar(nome, categoriaId, precoMin, precoMax, ehAdmin(usuario), pageable);
-    }
-
-    private boolean ehAdmin(UsuarioAuthRequestDTO usuario) {
-        return usuario != null && usuario.perfil() == Perfil.ADMIN;
     }
 
 }

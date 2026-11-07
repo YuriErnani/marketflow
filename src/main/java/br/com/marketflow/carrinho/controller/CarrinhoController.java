@@ -19,8 +19,8 @@ public class CarrinhoController {
     private final CarrinhoService carrinhoService;
 
     @GetMapping
-    public CarrinhoResponseDTO consultar(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
-        return carrinhoService.consultar(usuario.id());
+    public CarrinhoResponseDTO consultarItens(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
+        return carrinhoService.consultarItens(usuario.id());
     }
 
     @PostMapping("/itens")
@@ -29,8 +29,8 @@ public class CarrinhoController {
     }
 
     @PutMapping("/itens/{produtoId}")
-    public CarrinhoResponseDTO alterarQuantidade(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @PathVariable Long produtoId, @Valid @RequestBody AlterarQuantidadeItemRequestDTO request) {
-        return carrinhoService.alterarQuantidade(usuario.id(), produtoId, request.quantidade());
+    public CarrinhoResponseDTO alterarQuantidadeItem(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @PathVariable Long produtoId, @Valid @RequestBody AlterarQuantidadeItemRequestDTO request) {
+        return carrinhoService.alterarQuantidadeItem(usuario.id(), produtoId, request.quantidade());
     }
 
     @DeleteMapping("/itens/{produtoId}")

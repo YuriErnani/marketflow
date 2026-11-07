@@ -1,16 +1,20 @@
 package br.com.marketflow.infra.exception;
 
+import br.com.marketflow.carrinho.exception.CarrinhoVazioException;
 import br.com.marketflow.carrinho.exception.ItemCarrinhoNaoEncontradoException;
 import br.com.marketflow.categoria.exception.CategoriaJaExisteException;
 import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
 import br.com.marketflow.estoque.exception.EstoqueInsuficienteException;
 import br.com.marketflow.estoque.exception.EstoqueNaoEncontradoException;
+import br.com.marketflow.pedido.exception.PedidoNaoEncontradoException;
+import br.com.marketflow.pedido.exception.ProdutoIndisponivelException;
 import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
 import br.com.marketflow.usuario.exception.AdminNaoPodeSerDesativadoException;
 import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
 import br.com.marketflow.usuario.exception.EmailJaCadastradoException;
 import br.com.marketflow.usuario.exception.SenhaAtualInvalidaException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -141,6 +145,46 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 ex.getMessage());
         problema.setTitle("Item Não Encontrado");
+
+        return problema;
+    }
+
+    @ExceptionHandler(CarrinhoVazioException.class)
+    public ProblemDetail tratarCarrinhoVazio(CarrinhoVazioException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage());
+        problema.setTitle("Carrinho Vazio");
+
+        return problema;
+    }
+
+    @ExceptionHandler(ProdutoIndisponivelException.class)
+    public ProblemDetail tratarProdutoIndisponivel(ProdutoIndisponivelException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage());
+        problema.setTitle("Produto Indisponível");
+
+        return problema;
+    }
+
+    @ExceptionHandler(PedidoNaoEncontradoException.class)
+    public ProblemDetail tratarPedidoNaoEncontrado(PedidoNaoEncontradoException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problema.setTitle("Pedido Não Encontrado");
+
+        return problema;
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail tratarConflitoDeConcorrencia(OptimisticLockingFailureException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                "Os dados foram alterados por outra requisição. Tente novamente.");
+        problema.setTitle("Conflito de Concorrência");
 
         return problema;
     }

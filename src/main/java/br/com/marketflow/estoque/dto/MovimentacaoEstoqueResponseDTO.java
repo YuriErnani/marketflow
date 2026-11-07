@@ -9,6 +9,7 @@ public record MovimentacaoEstoqueResponseDTO(
         Long id,
         TipoMovimentacao tipo,
         int quantidade,
+        Long pedidoId,
         Instant criadoEm
 ) {
 
@@ -17,6 +18,7 @@ public record MovimentacaoEstoqueResponseDTO(
                 movimentacao.getId(),
                 movimentacao.getTipo(),
                 movimentacao.getQuantidade(),
+                movimentacao.getPedidoId(),
                 movimentacao.getCriadoEm()
         );
     }

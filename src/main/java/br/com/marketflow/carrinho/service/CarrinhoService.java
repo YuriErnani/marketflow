@@ -25,56 +25,8 @@ public class CarrinhoService {
     private final EstoqueService estoqueService;
 
     @Transactional(readOnly = true)
-    public CarrinhoResponseDTO consultar(Long usuarioId) {
+    public CarrinhoResponseDTO consultarItens(Long usuarioId) {
         return montarCarrinho(itemRepository.findByUsuarioIdOrderByIdAsc(usuarioId));
-    }
-
-    @Transactional
-    public CarrinhoResponseDTO adicionarItem(Long usuarioId, AdicionarItemCarrinhoRequestDTO request) {
-        var produto = produtoService.buscarEntidadeAtiva(request.produtoId());
-
-        var itemExistente = itemRepository
-                .findByUsuarioIdAndProdutoId(usuarioId, produto.getId())
-                .orElse(null);
-
-        var quantidadeAtual = itemExistente == null ? 0 : itemExistente.getQuantidade();
-        var novaQuantidade = quantidadeAtual + request.quantidade();
-
-        validarEstoque(produto.getId(), novaQuantidade);
-
-        if (itemExistente == null)
-            itemRepository.save(new ItemCarrinho(usuarioId, produto.getId(), novaQuantidade));
-        else
-            itemExistente.alterarQuantidade(novaQuantidade);
-
-        return montarCarrinho(itemRepository.findByUsuarioIdOrderByIdAsc(usuarioId));
-    }
-
-    @Transactional
-    public CarrinhoResponseDTO alterarQuantidade(Long usuarioId, Long produtoId, int quantidade) {
-        var item = buscarItem(usuarioId, produtoId);
-
-        produtoService.buscarEntidadeAtiva(produtoId);
-        validarEstoque(produtoId, quantidade);
-
-        item.alterarQuantidade(quantidade);
-
-        return montarCarrinho(itemRepository.findByUsuarioIdOrderByIdAsc(usuarioId));
-    }
-
-    @Transactional
-    public void removerItem(Long usuarioId, Long produtoId) {
-        itemRepository.delete(buscarItem(usuarioId, produtoId));
-    }
-
-    private void validarEstoque(Long produtoId, int quantidade) {
-        if (estoqueService.quantidadeDisponivel(produtoId) < quantidade)
-            throw new EstoqueInsuficienteException();
-    }
-
-    private ItemCarrinho buscarItem(Long usuarioId, Long produtoId) {
-        return itemRepository.findByUsuarioIdAndProdutoId(usuarioId, produtoId)
-                .orElseThrow(ItemCarrinhoNaoEncontradoException::new);
     }
 
     private CarrinhoResponseDTO montarCarrinho(List<ItemCarrinho> itens) {
@@ -118,6 +70,65 @@ public class CarrinhoService {
                 .allMatch(ItemCarrinhoResponseDTO::disponivel);
 
         return new CarrinhoResponseDTO(respostas, total, podeFinalizar);
+    }
+
+    @Transactional
+    public CarrinhoResponseDTO adicionarItem(Long usuarioId, AdicionarItemCarrinhoRequestDTO request) {
+        var produto = produtoService.buscarEntidadeAtiva(request.produtoId());
+
+        var itemExistente = itemRepository
+                .findByUsuarioIdAndProdutoId(usuarioId, produto.getId())
+                .orElse(null);
+
+        var quantidadeAtual = itemExistente == null ? 0 : itemExistente.getQuantidade();
+
+        var novaQuantidade = quantidadeAtual + request.quantidade();
+
+        validarEstoque(produto.getId(), novaQuantidade);
+
+        if (itemExistente == null)
+            itemRepository.save(new ItemCarrinho(usuarioId, produto.getId(), novaQuantidade));
+        else
+            itemExistente.alterarQuantidade(novaQuantidade);
+
+        return montarCarrinho(itemRepository.findByUsuarioIdOrderByIdAsc(usuarioId));
+    }
+
+    private void validarEstoque(Long produtoId, int quantidade) {
+        if (estoqueService.quantidadeDisponivel(produtoId) < quantidade)
+            throw new EstoqueInsuficienteException();
+    }
+
+    @Transactional
+    public CarrinhoResponseDTO alterarQuantidadeItem(Long usuarioId, Long produtoId, int quantidade) {
+        var item = buscarItem(usuarioId, produtoId);
+
+        produtoService.buscarEntidadeAtiva(produtoId);
+        validarEstoque(produtoId, quantidade);
+
+        item.alterarQuantidade(quantidade);
+
+        return montarCarrinho(itemRepository.findByUsuarioIdOrderByIdAsc(usuarioId));
+    }
+
+    private ItemCarrinho buscarItem(Long usuarioId, Long produtoId) {
+        return itemRepository.findByUsuarioIdAndProdutoId(usuarioId, produtoId)
+                .orElseThrow(ItemCarrinhoNaoEncontradoException::new);
+    }
+
+    @Transactional
+    public void removerItem(Long usuarioId, Long produtoId) {
+        itemRepository.delete(buscarItem(usuarioId, produtoId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemCarrinho> listarItens(Long usuarioId) {
+        return itemRepository.findByUsuarioIdOrderByIdAsc(usuarioId);
+    }
+
+    @Transactional
+    public void esvaziarCarrinho(Long usuarioId) {
+        itemRepository.deleteByUsuarioId(usuarioId);
     }
 
 }

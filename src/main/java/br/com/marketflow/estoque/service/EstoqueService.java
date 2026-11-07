@@ -33,11 +33,12 @@ public class EstoqueService {
     }
 
     @Transactional(readOnly = true)
-    public EstoqueResponseDTO consultar(Long produtoId) {
+    public EstoqueResponseDTO consultarEstoque(Long produtoId) {
         var estoque = estoqueRepository.findByProdutoId(produtoId)
                 .orElseThrow(EstoqueNaoEncontradoException::new);
 
-        return EstoqueResponseDTO.from(estoque);
+        return EstoqueResponseDTO
+                .from(estoque);
     }
 
     @Transactional
@@ -49,7 +50,8 @@ public class EstoqueService {
 
         movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.ENTRADA, quantidade));
 
-        return EstoqueResponseDTO.from(estoque);
+        return EstoqueResponseDTO
+                .from(estoque);
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +68,8 @@ public class EstoqueService {
                 .findByProdutoId(produtoId, paginaOrdenada)
                 .map(MovimentacaoEstoqueResponseDTO::from);
 
-        return PaginaResponseDTO.from(pagina);
+        return PaginaResponseDTO
+                .from(pagina);
     }
 
     @Transactional(readOnly = true)
@@ -83,6 +86,16 @@ public class EstoqueService {
                 .findByProdutoIdIn(produtoIds)
                 .stream()
                 .collect(Collectors.toMap(Estoque::getProdutoId, Estoque::getQuantidadeDisponivel));
+    }
+
+    @Transactional
+    public void reservar(Long produtoId, int quantidade, Long pedidoId) {
+        var estoque = estoqueRepository.buscarParaAtualizacao(produtoId)
+                .orElseThrow(EstoqueNaoEncontradoException::new);
+
+        estoque.reservar(quantidade);
+
+        movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.RESERVA, quantidade, pedidoId));
     }
 
 }

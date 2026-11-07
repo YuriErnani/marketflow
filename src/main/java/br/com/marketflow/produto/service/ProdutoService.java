@@ -31,6 +31,34 @@ public class ProdutoService {
     private final EstoqueService estoqueService;
 
     @Transactional(readOnly = true)
+    public PaginaResponseDTO<ProdutoResponseDTO> listarProdutos(
+            String nome,
+            Long categoriaId,
+            BigDecimal precoMin,
+            BigDecimal precoMax,
+            boolean incluirInativos,
+            Pageable pageable) {
+
+        validarOrdenacao(pageable);
+
+        var termo = nome == null ? "" : nome.trim();
+
+        var pagina = produtoRepository
+                .buscar(termo, categoriaId, precoMin, precoMax, incluirInativos, pageable)
+                .map(ProdutoResponseDTO::from);
+
+        return PaginaResponseDTO
+                .from(pagina);
+    }
+
+    private void validarOrdenacao(Pageable pageable) {
+        pageable.getSort().forEach(ordem -> {
+            if (!CAMPOS_ORDENACAO.contains(ordem.getProperty()))
+                throw new OrdenacaoInvalidaException(ordem.getProperty());
+        });
+    }
+
+    @Transactional(readOnly = true)
     public ProdutoResponseDTO buscarProduto(Long id, boolean incluirInativos) {
         var produto = buscarProdutoPorId(id);
 
@@ -39,6 +67,11 @@ public class ProdutoService {
 
         return ProdutoResponseDTO
                 .from(produto);
+    }
+
+    private Produto buscarProdutoPorId(Long id) {
+        return produtoRepository.findById(id)
+                .orElseThrow(ProdutoNaoEncontradoException::new);
     }
 
     @Transactional
@@ -62,6 +95,7 @@ public class ProdutoService {
     @Transactional
     public ProdutoResponseDTO atualizarProduto(Long id, ProdutoRequestDTO request) {
         var produto = buscarProdutoPorId(id);
+
         var categoria = categoriaService.buscarEntidadePorId(request.categoriaId());
 
         produto.atualizar(
@@ -70,7 +104,8 @@ public class ProdutoService {
                 request.preco(),
                 categoria);
 
-        return ProdutoResponseDTO.from(produto);
+        return ProdutoResponseDTO
+                .from(produto);
     }
 
     @Transactional
@@ -81,45 +116,6 @@ public class ProdutoService {
         return ProdutoResponseDTO
                 .from(produto);
     }
-
-    @Transactional(readOnly = true)
-    public PaginaResponseDTO<ProdutoResponseDTO> listar(
-            String nome,
-            Long categoriaId,
-            BigDecimal precoMin,
-            BigDecimal precoMax,
-            boolean incluirInativos,
-            Pageable pageable) {
-
-        validarOrdenacao(pageable);
-
-        var termo = nome == null ? "" : nome.trim();
-
-        var pagina = produtoRepository
-                .buscar(termo, categoriaId, precoMin, precoMax, incluirInativos, pageable)
-                .map(ProdutoResponseDTO::from);
-
-        return PaginaResponseDTO
-                .from(pagina);
-    }
-
-//    @Transactional
-//    public ProdutoResponseDTO criar(ProdutoRequestDTO request) {
-//        var categoria = categoriaService.buscarEntidadePorId(request.categoriaId());
-//
-//        var produto = new Produto(
-//                request.nome().trim(),
-//                request.descricao(),
-//                request.preco(),
-//                categoria);
-//
-//        var produtoSalvo = produtoRepository.save(produto);
-//
-//        estoqueService.criarEstoque(produtoSalvo.getId());
-//
-//        return ProdutoResponseDTO
-//                .from(produtoSalvo);
-//    }
 
     @Transactional(readOnly = true)
     public Produto buscarEntidadeAtiva(Long id) {
@@ -137,18 +133,6 @@ public class ProdutoService {
                 .findAllById(ids)
                 .stream()
                 .collect(Collectors.toMap(Produto::getId, produto -> produto));
-    }
-
-    private Produto buscarProdutoPorId(Long id) {
-        return produtoRepository.findById(id)
-                .orElseThrow(ProdutoNaoEncontradoException::new);
-    }
-
-    private void validarOrdenacao(Pageable pageable) {
-        pageable.getSort().forEach(ordem -> {
-            if (!CAMPOS_ORDENACAO.contains(ordem.getProperty()))
-                throw new OrdenacaoInvalidaException(ordem.getProperty());
-        });
     }
 
 }

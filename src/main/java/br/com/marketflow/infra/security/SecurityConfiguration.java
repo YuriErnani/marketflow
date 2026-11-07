@@ -25,7 +25,8 @@ public class SecurityConfiguration {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -59,10 +60,17 @@ public class SecurityConfiguration {
                                 "/api/v1/produtos/**")
                         .hasRole("ADMIN")
 
-                        .requestMatchers("/api/v1/estoque/**")
+                        .requestMatchers(
+                                "/api/v1/estoque/**")
                         .hasRole("ADMIN")
 
-                        .requestMatchers("/api/v1/carrinho/**")
+                        .requestMatchers(
+                                "/api/v1/carrinho/**")
+                        .hasRole("CLIENTE")
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/pedidos")
                         .hasRole("CLIENTE")
 
                         .anyRequest().authenticated())
