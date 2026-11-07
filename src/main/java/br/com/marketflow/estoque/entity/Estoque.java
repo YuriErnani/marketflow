@@ -55,4 +55,11 @@ public class Estoque {
         this.quantidadeDisponivel += quantidade;
     }
 
+    public void baixarReserva(int quantidade) {
+        if (quantidade > this.quantidadeReservada)
+            throw new IllegalStateException("Quantidade reservada insuficiente para baixa.");
+
+        this.quantidadeReservada -= quantidade;
+    }
+
 }

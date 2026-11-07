@@ -118,4 +118,14 @@ public class EstoqueService {
         movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.DEVOLUCAO, quantidade, pedidoId));
     }
 
+    @Transactional
+    public void baixarReserva(Long produtoId, int quantidade, Long pedidoId) {
+        var estoque = estoqueRepository.buscarParaAtualizacao(produtoId)
+                .orElseThrow(EstoqueNaoEncontradoException::new);
+
+        estoque.baixarReserva(quantidade);
+
+        movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.BAIXA, quantidade, pedidoId));
+    }
+
 }

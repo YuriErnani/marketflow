@@ -89,4 +89,12 @@ public class Pedido {
         this.atualizadoEm = Instant.now();
     }
 
+    public void aprovarPagamento() {
+        if (status != StatusPedido.AGUARDANDO_PAGAMENTO)
+            throw new TransicaoStatusInvalidaException("Este pedido não está aguardando pagamento.");
+
+        this.status = StatusPedido.PAGAMENTO_APROVADO;
+        this.atualizadoEm = Instant.now();
+    }
+
 }

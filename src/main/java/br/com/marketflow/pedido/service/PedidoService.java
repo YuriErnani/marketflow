@@ -6,6 +6,13 @@ import br.com.marketflow.carrinho.service.CarrinhoService;
 import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
 import br.com.marketflow.estoque.service.EstoqueService;
 import br.com.marketflow.infra.dto.PaginaResponseDTO;
+import br.com.marketflow.pagamento.dto.PagamentoResponseDTO;
+import br.com.marketflow.pagamento.dto.RegistroPagamentoDTO;
+import br.com.marketflow.pagamento.entity.ResultadoPagamentoSimulado;
+import br.com.marketflow.pagamento.entity.StatusPagamento;
+import br.com.marketflow.pagamento.exception.ChaveIdempotenciaEmUsoException;
+import br.com.marketflow.pagamento.exception.ChaveIdempotenciaInvalidaException;
+import br.com.marketflow.pagamento.service.PagamentoService;
 import br.com.marketflow.pedido.dto.FinalizarPedidoRequestDTO;
 import br.com.marketflow.pedido.dto.PedidoResponseDTO;
 import br.com.marketflow.pedido.dto.PedidoResumoResponseDTO;
@@ -35,6 +42,7 @@ public class PedidoService {
     private final CarrinhoService carrinhoService;
     private final ProdutoService produtoService;
     private final EstoqueService estoqueService;
+    private final PagamentoService pagamentoService;
 
     @Transactional(readOnly = true)
     public PaginaResponseDTO<PedidoResumoResponseDTO> listarPedidos(Long usuarioId, boolean admin, Pageable pageable) {
@@ -142,6 +150,9 @@ public class PedidoService {
             else
                 estoqueService.devolver(item.getProdutoId(), item.getQuantidade(), pedido.getId());
         }
+
+        if (statusAnterior != StatusPedido.AGUARDANDO_PAGAMENTO)
+            pagamentoService.estornarAprovado(pedido.getId());
     }
 
     @Transactional
@@ -162,6 +173,57 @@ public class PedidoService {
             throw new PedidoNaoEncontradoException();
 
         return pedido;
+    }
+
+    @Transactional
+    public RegistroPagamentoDTO registrarPagamento(Long pedidoId, Long usuarioId, String chave, ResultadoPagamentoSimulado resultado) {
+        if (chave.isBlank() || chave.length() > 100)
+            throw new ChaveIdempotenciaInvalidaException();
+
+        var pedido = buscarParaAtualizacao(pedidoId, usuarioId, false);
+
+        var existente = pagamentoService.buscarPorChave(chave);
+
+        if (existente.isPresent()) {
+            var pagamento = existente.get();
+
+            if (!pagamento.getPedidoId().equals(pedidoId))
+                throw new ChaveIdempotenciaEmUsoException();
+
+            return new RegistroPagamentoDTO(PagamentoResponseDTO.from(pagamento), false);
+        }
+
+        if (pedido.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO)
+            throw new TransicaoStatusInvalidaException("Este pedido não está aguardando pagamento.");
+
+        var status = resultado == ResultadoPagamentoSimulado.APROVADO ? StatusPagamento.APROVADO : StatusPagamento.RECUSADO;
+
+        var pagamento = pagamentoService.registrar(pedido.getId(), chave, pedido.getTotal(), status);
+
+        if (status == StatusPagamento.APROVADO) {
+            pedido.aprovarPagamento();
+
+            var itens = pedido.getItens()
+                    .stream()
+                    .sorted(Comparator.comparing(ItemPedido::getProdutoId))
+                    .toList();
+
+            for (var item : itens)
+                estoqueService.baixarReserva(item.getProdutoId(), item.getQuantidade(), pedido.getId());
+        }
+
+        return new RegistroPagamentoDTO(PagamentoResponseDTO.from(pagamento), true);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PagamentoResponseDTO> listarPagamentos(Long pedidoId, Long usuarioId, boolean admin) {
+        var pedido = pedidoRepository.findById(pedidoId)
+                .orElseThrow(PedidoNaoEncontradoException::new);
+
+        if (!admin && !pedido.getUsuarioId().equals(usuarioId))
+            throw new PedidoNaoEncontradoException();
+
+        return pagamentoService.listarPorPedido(pedidoId);
     }
 
 }

@@ -7,6 +7,8 @@ import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
 import br.com.marketflow.estoque.exception.EstoqueInsuficienteException;
 import br.com.marketflow.estoque.exception.EstoqueNaoEncontradoException;
 import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
+import br.com.marketflow.pagamento.exception.ChaveIdempotenciaEmUsoException;
+import br.com.marketflow.pagamento.exception.ChaveIdempotenciaInvalidaException;
 import br.com.marketflow.pedido.exception.PedidoNaoEncontradoException;
 import br.com.marketflow.pedido.exception.ProdutoIndisponivelException;
 import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
@@ -196,6 +198,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.CONFLICT,
                 ex.getMessage());
         problema.setTitle("Transição de Status Inválida");
+
+        return problema;
+    }
+
+    @ExceptionHandler(ChaveIdempotenciaEmUsoException.class)
+    public ProblemDetail tratarChaveEmUso(ChaveIdempotenciaEmUsoException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage());
+        problema.setTitle("Chave de Idempotência em Uso");
+
+        return problema;
+    }
+
+    @ExceptionHandler(ChaveIdempotenciaInvalidaException.class)
+    public ProblemDetail tratarChaveInvalida(ChaveIdempotenciaInvalidaException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage());
+        problema.setTitle("Chave de Idempotência Inválida");
 
         return problema;
     }

@@ -47,6 +47,12 @@ public class UsuarioService {
                 .from(usuario);
     }
 
+    private Usuario buscarUsuarioPorId(Long id) {
+        return usuarioRepository
+                .findById(id)
+                .orElseThrow(CredenciaisInvalidasException::new);
+    }
+
     @Transactional
     public void alterarSenha(Long id, AlterarSenhaRequestDTO request) {
         var usuario = buscarUsuarioPorId(id);
@@ -65,12 +71,6 @@ public class UsuarioService {
             throw new AdminNaoPodeSerDesativadoException();
 
         usuario.desativar();
-    }
-
-    private Usuario buscarUsuarioPorId(Long id) {
-        return usuarioRepository
-                .findById(id)
-                .orElseThrow(CredenciaisInvalidasException::new);
     }
 
 }

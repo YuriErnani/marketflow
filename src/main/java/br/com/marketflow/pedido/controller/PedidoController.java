@@ -1,6 +1,8 @@
 package br.com.marketflow.pedido.controller;
 
 import br.com.marketflow.infra.dto.PaginaResponseDTO;
+import br.com.marketflow.pagamento.dto.PagamentoResponseDTO;
+import br.com.marketflow.pagamento.dto.RegistrarPagamentoRequestDTO;
 import br.com.marketflow.pedido.dto.AtualizarStatusPedidoRequestDTO;
 import br.com.marketflow.pedido.dto.FinalizarPedidoRequestDTO;
 import br.com.marketflow.pedido.dto.PedidoResponseDTO;
@@ -12,8 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/pedidos")
@@ -32,6 +37,11 @@ public class PedidoController {
         return pedidoService.buscarPedidoPorId(id, usuario.id(), usuario.ehAdmin());
     }
 
+    @GetMapping("/{id}/pagamentos")
+    public List<PagamentoResponseDTO> listarPagamentos(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @PathVariable Long id) {
+        return pedidoService.listarPagamentos(id, usuario.id(), usuario.ehAdmin());
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PedidoResponseDTO finalizarCompra(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @Valid @RequestBody FinalizarPedidoRequestDTO request) {
@@ -41,6 +51,18 @@ public class PedidoController {
     @PostMapping("/{id}/cancelamento")
     public PedidoResponseDTO cancelar(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @PathVariable Long id) {
         return pedidoService.cancelar(id, usuario.id(), usuario.ehAdmin());
+    }
+
+    @PostMapping("/{id}/pagamentos")
+    public ResponseEntity<PagamentoResponseDTO> registrarPagamento(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @PathVariable Long id, @RequestHeader("Idempotency-Key") String chave, @Valid @RequestBody RegistrarPagamentoRequestDTO request) {
+
+        var resultado = pedidoService.registrarPagamento(id, usuario.id(), chave.trim(), request.resultadoSimulado());
+
+        var status = resultado.novo() ? HttpStatus.CREATED : HttpStatus.OK;
+
+        return ResponseEntity
+                .status(status)
+                .body(resultado.pagamento());
     }
 
     @PatchMapping("/{id}/status")
