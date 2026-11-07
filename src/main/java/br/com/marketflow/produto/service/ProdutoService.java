@@ -1,6 +1,7 @@
 package br.com.marketflow.produto.service;
 
 import br.com.marketflow.categoria.service.CategoriaService;
+import br.com.marketflow.estoque.service.EstoqueService;
 import br.com.marketflow.infra.dto.PaginaResponseDTO;
 import br.com.marketflow.infra.exception.OrdenacaoInvalidaException;
 import br.com.marketflow.produto.dto.ProdutoRequestDTO;
@@ -24,6 +25,7 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final CategoriaService categoriaService;
+    private final EstoqueService estoqueService;
 
     @Transactional(readOnly = true)
     public ProdutoResponseDTO buscarProduto(Long id, boolean incluirInativos) {
@@ -32,7 +34,8 @@ public class ProdutoService {
         if (!produto.isAtivo() && !incluirInativos)
             throw new ProdutoNaoEncontradoException();
 
-        return ProdutoResponseDTO.from(produto);
+        return ProdutoResponseDTO
+                .from(produto);
     }
 
     @Transactional
@@ -45,7 +48,8 @@ public class ProdutoService {
                 request.preco(),
                 categoria);
 
-        return ProdutoResponseDTO.from(produtoRepository.save(produto));
+        return ProdutoResponseDTO
+                .from(produtoRepository.save(produto));
     }
 
     @Transactional
@@ -67,7 +71,8 @@ public class ProdutoService {
         var produto = buscarProdutoPorId(id);
         produto.ativar(ativo);
 
-        return ProdutoResponseDTO.from(produto);
+        return ProdutoResponseDTO
+                .from(produto);
     }
 
     @Transactional(readOnly = true)
@@ -87,7 +92,26 @@ public class ProdutoService {
                 .buscar(termo, categoriaId, precoMin, precoMax, incluirInativos, pageable)
                 .map(ProdutoResponseDTO::from);
 
-        return PaginaResponseDTO.from(pagina);
+        return PaginaResponseDTO
+                .from(pagina);
+    }
+
+    @Transactional
+    public ProdutoResponseDTO criar(ProdutoRequestDTO request) {
+        var categoria = categoriaService.buscarEntidadePorId(request.categoriaId());
+
+        var produto = new Produto(
+                request.nome().trim(),
+                request.descricao(),
+                request.preco(),
+                categoria);
+
+        var produtoSalvo = produtoRepository.save(produto);
+
+        estoqueService.criarEstoque(produtoSalvo.getId());
+
+        return ProdutoResponseDTO
+                .from(produtoSalvo);
     }
 
     private Produto buscarProdutoPorId(Long id) {

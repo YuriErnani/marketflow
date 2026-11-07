@@ -59,6 +59,9 @@ public class SecurityConfiguration {
                                 "/api/v1/produtos/**")
                         .hasRole("ADMIN")
 
+                        .requestMatchers("/api/v1/estoque/**")
+                        .hasRole("ADMIN")
+
                         .anyRequest().authenticated())
 
                 .exceptionHandling(erros -> erros

@@ -2,6 +2,7 @@ package br.com.marketflow.infra.exception;
 
 import br.com.marketflow.categoria.exception.CategoriaJaExisteException;
 import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
+import br.com.marketflow.estoque.exception.EstoqueNaoEncontradoException;
 import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
 import br.com.marketflow.usuario.exception.AdminNaoPodeSerDesativadoException;
 import br.com.marketflow.usuario.exception.CredenciaisInvalidasException;
@@ -108,6 +109,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage());
         problema.setTitle("Ordenação Inválida");
+
+        return problema;
+    }
+
+    @ExceptionHandler(EstoqueNaoEncontradoException.class)
+    public ProblemDetail tratarEstoqueNaoEncontrado(EstoqueNaoEncontradoException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problema.setTitle("Estoque Não Encontrado");
 
         return problema;
     }
