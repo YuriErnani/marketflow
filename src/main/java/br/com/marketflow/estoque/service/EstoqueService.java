@@ -16,6 +16,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class EstoqueService {
@@ -63,6 +67,22 @@ public class EstoqueService {
                 .map(MovimentacaoEstoqueResponseDTO::from);
 
         return PaginaResponseDTO.from(pagina);
+    }
+
+    @Transactional(readOnly = true)
+    public int quantidadeDisponivel(Long produtoId) {
+        return estoqueRepository
+                .findByProdutoId(produtoId)
+                .map(Estoque::getQuantidadeDisponivel)
+                .orElse(0);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Integer> quantidadesDisponiveis(Collection<Long> produtoIds) {
+        return estoqueRepository
+                .findByProdutoIdIn(produtoIds)
+                .stream()
+                .collect(Collectors.toMap(Estoque::getProdutoId, Estoque::getQuantidadeDisponivel));
     }
 
 }

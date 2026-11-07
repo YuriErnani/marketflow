@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
@@ -18,5 +20,7 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM Estoque e WHERE e.produtoId = :produtoId")
     Optional<Estoque> buscarParaAtualizacao(@Param("produtoId") Long produtoId);
+
+    List<Estoque> findByProdutoIdIn(Collection<Long> produtoIds);
 
 }

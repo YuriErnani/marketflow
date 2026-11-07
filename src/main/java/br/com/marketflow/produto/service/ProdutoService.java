@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -112,6 +115,24 @@ public class ProdutoService {
 
         return ProdutoResponseDTO
                 .from(produtoSalvo);
+    }
+
+    @Transactional(readOnly = true)
+    public Produto buscarEntidadeAtiva(Long id) {
+        var produto = buscarProdutoPorId(id);
+
+        if (!produto.isAtivo())
+            throw new ProdutoNaoEncontradoException();
+
+        return produto;
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Produto> buscarEntidadesPorIds(Collection<Long> ids) {
+        return produtoRepository
+                .findAllById(ids)
+                .stream()
+                .collect(Collectors.toMap(Produto::getId, produto -> produto));
     }
 
     private Produto buscarProdutoPorId(Long id) {

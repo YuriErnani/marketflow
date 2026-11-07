@@ -1,7 +1,9 @@
 package br.com.marketflow.infra.exception;
 
+import br.com.marketflow.carrinho.exception.ItemCarrinhoNaoEncontradoException;
 import br.com.marketflow.categoria.exception.CategoriaJaExisteException;
 import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
+import br.com.marketflow.estoque.exception.EstoqueInsuficienteException;
 import br.com.marketflow.estoque.exception.EstoqueNaoEncontradoException;
 import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
 import br.com.marketflow.usuario.exception.AdminNaoPodeSerDesativadoException;
@@ -119,6 +121,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 ex.getMessage());
         problema.setTitle("Estoque Não Encontrado");
+
+        return problema;
+    }
+
+    @ExceptionHandler(EstoqueInsuficienteException.class)
+    public ProblemDetail tratarEstoqueInsuficiente(EstoqueInsuficienteException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage());
+        problema.setTitle("Estoque Insuficiente");
+
+        return problema;
+    }
+
+    @ExceptionHandler(ItemCarrinhoNaoEncontradoException.class)
+    public ProblemDetail tratarItemCarrinhoNaoEncontrado(ItemCarrinhoNaoEncontradoException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage());
+        problema.setTitle("Item Não Encontrado");
 
         return problema;
     }

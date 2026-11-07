@@ -62,6 +62,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/estoque/**")
                         .hasRole("ADMIN")
 
+                        .requestMatchers("/api/v1/carrinho/**")
+                        .hasRole("CLIENTE")
+
                         .anyRequest().authenticated())
 
                 .exceptionHandling(erros -> erros
