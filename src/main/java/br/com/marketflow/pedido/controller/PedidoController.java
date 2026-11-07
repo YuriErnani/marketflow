@@ -9,8 +9,10 @@ import br.com.marketflow.pedido.dto.PedidoResponseDTO;
 import br.com.marketflow.pedido.dto.PedidoResumoResponseDTO;
 import br.com.marketflow.pedido.service.PedidoService;
 import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Pedidos", description = "Compra, pagamentos, cancelamento e status")
 @RestController
 @RequestMapping("/api/v1/pedidos")
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class PedidoController {
     private final PedidoService pedidoService;
 
     @GetMapping
-    public PaginaResponseDTO<PedidoResumoResponseDTO> listarPedidos(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @PageableDefault(size = 10) Pageable pageable) {
+    public PaginaResponseDTO<PedidoResumoResponseDTO> listarPedidos(@AuthenticationPrincipal UsuarioAuthRequestDTO usuario, @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
         return pedidoService.listarPedidos(usuario.id(), usuario.ehAdmin(), pageable);
     }
 

@@ -7,8 +7,10 @@ import br.com.marketflow.produto.dto.ProdutoResponseDTO;
 import br.com.marketflow.produto.service.ProdutoService;
 import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
 import br.com.marketflow.usuario.entity.Perfil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+@Tag(name = "Produtos", description = "Catálogo com busca, filtros e paginação")
 @RestController
 @RequestMapping("/api/v1/produtos")
 @RequiredArgsConstructor
@@ -30,7 +33,7 @@ public class ProdutoController {
             @RequestParam(required = false) Long categoriaId,
             @RequestParam(required = false) BigDecimal precoMin,
             @RequestParam(required = false) BigDecimal precoMax,
-            @PageableDefault(size = 10, sort = "nome") Pageable pageable,
+            @ParameterObject @PageableDefault(size = 10, sort = "nome") Pageable pageable,
             @AuthenticationPrincipal UsuarioAuthRequestDTO usuario) {
 
         return produtoService.listarProdutos(nome, categoriaId, precoMin, precoMax, ehAdmin(usuario), pageable);

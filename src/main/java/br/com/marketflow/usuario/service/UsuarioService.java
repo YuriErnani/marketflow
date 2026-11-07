@@ -54,7 +54,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void alterarSenha(Long id, AlterarSenhaRequestDTO request) {
+    public void alterarSenhaUsuario(Long id, AlterarSenhaRequestDTO request) {
         var usuario = buscarUsuarioPorId(id);
 
         if (!passwordEncoder.matches(request.senhaAtual(), usuario.getSenhaHash()))

@@ -5,11 +5,13 @@ import br.com.marketflow.usuario.dto.autenticacao.LoginRequestDTO;
 import br.com.marketflow.usuario.dto.autenticacao.TokenResponseDTO;
 import br.com.marketflow.usuario.dto.UsuarioResponseDTO;
 import br.com.marketflow.usuario.service.AuthService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Autenticação", description = "Cadastro de clientes e login")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor

@@ -5,12 +5,14 @@ import br.com.marketflow.carrinho.dto.AlterarQuantidadeItemRequestDTO;
 import br.com.marketflow.carrinho.dto.CarrinhoResponseDTO;
 import br.com.marketflow.carrinho.service.CarrinhoService;
 import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Carrinho", description = "Carrinho do cliente autenticado")
 @RestController
 @RequestMapping("/api/v1/carrinho")
 @RequiredArgsConstructor

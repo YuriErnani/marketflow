@@ -5,13 +5,16 @@ import br.com.marketflow.estoque.dto.EstoqueResponseDTO;
 import br.com.marketflow.estoque.dto.MovimentacaoEstoqueResponseDTO;
 import br.com.marketflow.estoque.service.EstoqueService;
 import br.com.marketflow.infra.dto.PaginaResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Estoque", description = "Saldos, entradas e histórico (admin)")
 @RestController
 @RequestMapping("/api/v1/estoque/{produtoId}")
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class EstoqueController {
     }
 
     @GetMapping("/movimentacoes")
-    public PaginaResponseDTO<MovimentacaoEstoqueResponseDTO> listarMovimentacoes(@PathVariable Long produtoId, @PageableDefault(size = 20) Pageable pageable) {
+    public PaginaResponseDTO<MovimentacaoEstoqueResponseDTO> listarMovimentacoes(@PathVariable Long produtoId, @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         return estoqueService.listarMovimentacoes(produtoId, pageable);
     }
 

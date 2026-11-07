@@ -3,6 +3,7 @@ package br.com.marketflow.categoria.controller;
 import br.com.marketflow.categoria.dto.CategoriaRequestDTO;
 import br.com.marketflow.categoria.dto.CategoriaResponseDTO;
 import br.com.marketflow.categoria.service.CategoriaService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Categorias", description = "Consulta pública e gestão pelo admin")
 @RestController
 @RequestMapping("/api/v1/categorias")
 @RequiredArgsConstructor
