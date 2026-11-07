@@ -73,6 +73,11 @@ public class SecurityConfiguration {
                                 "/api/v1/pedidos")
                         .hasRole("CLIENTE")
 
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/v1/pedidos/*/status")
+                        .hasRole("ADMIN")
+
                         .anyRequest().authenticated())
 
                 .exceptionHandling(erros -> erros

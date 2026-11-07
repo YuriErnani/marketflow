@@ -98,4 +98,24 @@ public class EstoqueService {
         movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.RESERVA, quantidade, pedidoId));
     }
 
+    @Transactional
+    public void liberarReserva(Long produtoId, int quantidade, Long pedidoId) {
+        var estoque = estoqueRepository.buscarParaAtualizacao(produtoId)
+                .orElseThrow(EstoqueNaoEncontradoException::new);
+
+        estoque.liberarReserva(quantidade);
+
+        movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.LIBERACAO, quantidade, pedidoId));
+    }
+
+    @Transactional
+    public void devolver(Long produtoId, int quantidade, Long pedidoId) {
+        var estoque = estoqueRepository.buscarParaAtualizacao(produtoId)
+                .orElseThrow(EstoqueNaoEncontradoException::new);
+
+        estoque.devolver(quantidade);
+
+        movimentacaoRepository.save(new MovimentacaoEstoque(produtoId, TipoMovimentacao.DEVOLUCAO, quantidade, pedidoId));
+    }
+
 }

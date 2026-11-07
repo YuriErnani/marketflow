@@ -3,12 +3,15 @@ package br.com.marketflow.pedido.service;
 import br.com.marketflow.carrinho.entity.ItemCarrinho;
 import br.com.marketflow.carrinho.exception.CarrinhoVazioException;
 import br.com.marketflow.carrinho.service.CarrinhoService;
+import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
 import br.com.marketflow.estoque.service.EstoqueService;
 import br.com.marketflow.infra.dto.PaginaResponseDTO;
 import br.com.marketflow.pedido.dto.FinalizarPedidoRequestDTO;
 import br.com.marketflow.pedido.dto.PedidoResponseDTO;
 import br.com.marketflow.pedido.dto.PedidoResumoResponseDTO;
+import br.com.marketflow.pedido.entity.ItemPedido;
 import br.com.marketflow.pedido.entity.Pedido;
+import br.com.marketflow.pedido.entity.StatusPedido;
 import br.com.marketflow.pedido.exception.PedidoNaoEncontradoException;
 import br.com.marketflow.pedido.exception.ProdutoIndisponivelException;
 import br.com.marketflow.pedido.repository.PedidoRepository;
@@ -90,6 +93,52 @@ public class PedidoService {
         carrinhoService.esvaziarCarrinho(usuarioId);
 
         return PedidoResponseDTO.from(pedido);
+    }
+
+    @Transactional
+    public PedidoResponseDTO cancelar(Long pedidoId, Long usuarioId, boolean admin) {
+        var pedido = buscarParaAtualizacao(pedidoId, usuarioId, admin);
+
+        if (!admin && pedido.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO)
+            throw new TransicaoStatusInvalidaException("O cliente só pode cancelar pedidos que aguardam pagamento.");
+
+        var statusAnterior = pedido.getStatus();
+
+        pedido.cancelarPedido();
+
+        var itens = pedido.getItens()
+                .stream()
+                .sorted(Comparator.comparing(ItemPedido::getProdutoId))
+                .toList();
+
+        for (var item : itens) {
+            if (statusAnterior == StatusPedido.AGUARDANDO_PAGAMENTO)
+                estoqueService.liberarReserva(item.getProdutoId(), item.getQuantidade(), pedido.getId());
+            else
+                estoqueService.devolver(item.getProdutoId(), item.getQuantidade(), pedido.getId());
+        }
+
+        return PedidoResponseDTO.from(pedido);
+    }
+
+    @Transactional
+    public PedidoResponseDTO atualizarStatus(Long pedidoId, StatusPedido novoStatus) {
+        var pedido = pedidoRepository.buscarParaAtualizacao(pedidoId)
+                .orElseThrow(PedidoNaoEncontradoException::new);
+
+        pedido.avancarStatus(novoStatus);
+
+        return PedidoResponseDTO.from(pedido);
+    }
+
+    private Pedido buscarParaAtualizacao(Long pedidoId, Long usuarioId, boolean admin) {
+        var pedido = pedidoRepository.buscarParaAtualizacao(pedidoId)
+                .orElseThrow(PedidoNaoEncontradoException::new);
+
+        if (!admin && !pedido.getUsuarioId().equals(usuarioId))
+            throw new PedidoNaoEncontradoException();
+
+        return pedido;
     }
 
 }

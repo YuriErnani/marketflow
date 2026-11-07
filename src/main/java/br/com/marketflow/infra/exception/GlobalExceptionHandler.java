@@ -6,6 +6,7 @@ import br.com.marketflow.categoria.exception.CategoriaJaExisteException;
 import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
 import br.com.marketflow.estoque.exception.EstoqueInsuficienteException;
 import br.com.marketflow.estoque.exception.EstoqueNaoEncontradoException;
+import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
 import br.com.marketflow.pedido.exception.PedidoNaoEncontradoException;
 import br.com.marketflow.pedido.exception.ProdutoIndisponivelException;
 import br.com.marketflow.produto.exception.ProdutoNaoEncontradoException;
@@ -185,6 +186,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.CONFLICT,
                 "Os dados foram alterados por outra requisição. Tente novamente.");
         problema.setTitle("Conflito de Concorrência");
+
+        return problema;
+    }
+
+    @ExceptionHandler(TransicaoStatusInvalidaException.class)
+    public ProblemDetail tratarTransicaoStatusInvalida(TransicaoStatusInvalidaException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage());
+        problema.setTitle("Transição de Status Inválida");
 
         return problema;
     }

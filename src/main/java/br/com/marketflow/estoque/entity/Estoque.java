@@ -43,4 +43,16 @@ public class Estoque {
         this.quantidadeReservada += quantidade;
     }
 
+    public void liberarReserva(int quantidade) {
+        if (quantidade > this.quantidadeReservada)
+            throw new IllegalStateException("Quantidade reservada insuficiente para liberação.");
+
+        this.quantidadeReservada -= quantidade;
+        this.quantidadeDisponivel += quantidade;
+    }
+
+    public void devolver(int quantidade) {
+        this.quantidadeDisponivel += quantidade;
+    }
+
 }

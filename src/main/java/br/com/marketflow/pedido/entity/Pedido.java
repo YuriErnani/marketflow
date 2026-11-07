@@ -1,5 +1,6 @@
 package br.com.marketflow.pedido.entity;
 
+import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -61,6 +62,31 @@ public class Pedido {
 
     public List<ItemPedido> getItens() {
         return Collections.unmodifiableList(itens);
+    }
+
+    public void cancelarPedido() {
+        var podeCancelar = status == StatusPedido.AGUARDANDO_PAGAMENTO || status == StatusPedido.PAGAMENTO_APROVADO || status == StatusPedido.EM_PREPARACAO;
+
+        if (!podeCancelar)
+            throw new TransicaoStatusInvalidaException("Pedidos com status " + status + " não podem ser cancelados.");
+
+        this.status = StatusPedido.CANCELADO;
+        this.atualizadoEm = Instant.now();
+    }
+
+    public void avancarStatus(StatusPedido novoStatus) {
+        var proximoStatus = switch (status) {
+            case PAGAMENTO_APROVADO -> StatusPedido.EM_PREPARACAO;
+            case EM_PREPARACAO -> StatusPedido.ENVIADO;
+            case ENVIADO -> StatusPedido.ENTREGUE;
+            default -> null;
+        };
+
+        if (proximoStatus == null || proximoStatus != novoStatus)
+            throw new TransicaoStatusInvalidaException("Não é possível alterar o status de " + status + " para " + novoStatus + ".");
+
+        this.status = novoStatus;
+        this.atualizadoEm = Instant.now();
     }
 
 }
