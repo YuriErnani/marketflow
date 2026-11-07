@@ -51,8 +51,12 @@ public class ProdutoService {
                 request.preco(),
                 categoria);
 
+        var produtoSalvo = produtoRepository.save(produto);
+
+        estoqueService.criarEstoque(produtoSalvo.getId());
+
         return ProdutoResponseDTO
-                .from(produtoRepository.save(produto));
+                .from(produtoSalvo);
     }
 
     @Transactional
@@ -99,23 +103,23 @@ public class ProdutoService {
                 .from(pagina);
     }
 
-    @Transactional
-    public ProdutoResponseDTO criar(ProdutoRequestDTO request) {
-        var categoria = categoriaService.buscarEntidadePorId(request.categoriaId());
-
-        var produto = new Produto(
-                request.nome().trim(),
-                request.descricao(),
-                request.preco(),
-                categoria);
-
-        var produtoSalvo = produtoRepository.save(produto);
-
-        estoqueService.criarEstoque(produtoSalvo.getId());
-
-        return ProdutoResponseDTO
-                .from(produtoSalvo);
-    }
+//    @Transactional
+//    public ProdutoResponseDTO criar(ProdutoRequestDTO request) {
+//        var categoria = categoriaService.buscarEntidadePorId(request.categoriaId());
+//
+//        var produto = new Produto(
+//                request.nome().trim(),
+//                request.descricao(),
+//                request.preco(),
+//                categoria);
+//
+//        var produtoSalvo = produtoRepository.save(produto);
+//
+//        estoqueService.criarEstoque(produtoSalvo.getId());
+//
+//        return ProdutoResponseDTO
+//                .from(produtoSalvo);
+//    }
 
     @Transactional(readOnly = true)
     public Produto buscarEntidadeAtiva(Long id) {
