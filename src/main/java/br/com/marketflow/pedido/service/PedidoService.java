@@ -23,7 +23,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -102,12 +104,35 @@ public class PedidoService {
         if (!admin && pedido.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO)
             throw new TransicaoStatusInvalidaException("O cliente só pode cancelar pedidos que aguardam pagamento.");
 
+        cancelarEAtualizarEstoque(pedido);
+
+        return PedidoResponseDTO.from(pedido);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> buscarIdsParaExpirar(Instant limite) {
+        return pedidoRepository.buscarIdsCriadosAntesDe(StatusPedido.AGUARDANDO_PAGAMENTO, limite);
+    }
+
+    @Transactional
+    public boolean expirar(Long pedidoId) {
+        var pedido = pedidoRepository.buscarParaAtualizacao(pedidoId)
+                .orElseThrow(PedidoNaoEncontradoException::new);
+
+        if (pedido.getStatus() != StatusPedido.AGUARDANDO_PAGAMENTO)
+            return false;
+
+        cancelarEAtualizarEstoque(pedido);
+
+        return true;
+    }
+
+    private void cancelarEAtualizarEstoque(Pedido pedido) {
         var statusAnterior = pedido.getStatus();
 
         pedido.cancelarPedido();
 
-        var itens = pedido.getItens()
-                .stream()
+        var itens = pedido.getItens().stream()
                 .sorted(Comparator.comparing(ItemPedido::getProdutoId))
                 .toList();
 
@@ -117,8 +142,6 @@ public class PedidoService {
             else
                 estoqueService.devolver(item.getProdutoId(), item.getQuantidade(), pedido.getId());
         }
-
-        return PedidoResponseDTO.from(pedido);
     }
 
     @Transactional

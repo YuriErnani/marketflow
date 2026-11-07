@@ -1,0 +1,1 @@
+CREATE INDEX idx_pedidos_status_criado_em ON pedidos (status, criado_em);
