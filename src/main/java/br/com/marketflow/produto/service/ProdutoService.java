@@ -43,12 +43,17 @@ public class ProdutoService {
 
         var termo = nome == null ? "" : nome.trim();
 
-        var pagina = produtoRepository
-                .buscar(termo, categoriaId, precoMin, precoMax, incluirInativos, pageable)
-                .map(ProdutoResponseDTO::from);
+        var pagina = produtoRepository.buscar(termo, categoriaId, precoMin, precoMax, incluirInativos, pageable);
 
-        return PaginaResponseDTO
-                .from(pagina);
+        var produtoIds = pagina
+                .getContent()
+                .stream()
+                .map(Produto::getId)
+                .toList();
+
+        var estoques = estoqueService.quantidadesDisponiveis(produtoIds);
+
+        return PaginaResponseDTO.from(pagina.map(produto -> ProdutoResponseDTO.from(produto, estoques.getOrDefault(produto.getId(), 0))));
     }
 
     private void validarOrdenacao(Pageable pageable) {
@@ -65,13 +70,16 @@ public class ProdutoService {
         if (!produto.isAtivo() && !incluirInativos)
             throw new ProdutoNaoEncontradoException();
 
-        return ProdutoResponseDTO
-                .from(produto);
+        return montarResposta(produto);
     }
 
     private Produto buscarProdutoPorId(Long id) {
         return produtoRepository.findById(id)
                 .orElseThrow(ProdutoNaoEncontradoException::new);
+    }
+
+    private ProdutoResponseDTO montarResposta(Produto produto) {
+        return ProdutoResponseDTO.from(produto, estoqueService.quantidadeDisponivel(produto.getId()));
     }
 
     @Transactional
@@ -88,8 +96,7 @@ public class ProdutoService {
 
         estoqueService.criarEstoque(produtoSalvo.getId());
 
-        return ProdutoResponseDTO
-                .from(produtoSalvo);
+        return ProdutoResponseDTO.from(produtoSalvo, 0);
     }
 
     @Transactional
@@ -104,8 +111,7 @@ public class ProdutoService {
                 request.preco(),
                 categoria);
 
-        return ProdutoResponseDTO
-                .from(produto);
+        return montarResposta(produto);
     }
 
     @Transactional
@@ -113,8 +119,7 @@ public class ProdutoService {
         var produto = buscarProdutoPorId(id);
         produto.ativar(ativo);
 
-        return ProdutoResponseDTO
-                .from(produto);
+        return montarResposta(produto);
     }
 
     @Transactional(readOnly = true)
