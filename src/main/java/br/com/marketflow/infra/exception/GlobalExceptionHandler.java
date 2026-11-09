@@ -19,6 +19,8 @@ import br.com.marketflow.usuario.exception.SenhaAtualInvalidaException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -218,6 +220,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 ex.getMessage());
         problema.setTitle("Chave de Idempotência Inválida");
+
+        return problema;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail tratarNaoAutenticado(AuthenticationException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                "É necessário enviar um token válido no cabeçalho Authorization.");
+        problema.setTitle("Não Autenticado");
+
+        return problema;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail tratarAcessoNegado(AccessDeniedException ex) {
+        var problema = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                "Você não tem permissão para acessar este recurso.");
+        problema.setTitle("Acesso Negado");
 
         return problema;
     }
