@@ -6,7 +6,6 @@ import br.com.marketflow.produto.dto.ProdutoRequestDTO;
 import br.com.marketflow.produto.dto.ProdutoResponseDTO;
 import br.com.marketflow.produto.service.ProdutoService;
 import br.com.marketflow.usuario.dto.UsuarioAuthRequestDTO;
-import br.com.marketflow.usuario.entity.Perfil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class ProdutoController {
     }
 
     private boolean ehAdmin(UsuarioAuthRequestDTO usuario) {
-        return usuario != null && usuario.perfil() == Perfil.ADMIN;
+        return usuario != null && usuario.ehAdmin();
     }
 
     @GetMapping("/{id}")

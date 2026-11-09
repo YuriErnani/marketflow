@@ -6,7 +6,7 @@ import br.com.marketflow.categoria.exception.CategoriaJaExisteException;
 import br.com.marketflow.categoria.exception.CategoriaNaoEncontradaException;
 import br.com.marketflow.estoque.exception.EstoqueInsuficienteException;
 import br.com.marketflow.estoque.exception.EstoqueNaoEncontradoException;
-import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
+import br.com.marketflow.pedido.exception.TransicaoStatusInvalidaException;
 import br.com.marketflow.pagamento.exception.ChaveIdempotenciaEmUsoException;
 import br.com.marketflow.pagamento.exception.ChaveIdempotenciaInvalidaException;
 import br.com.marketflow.pedido.exception.PedidoNaoEncontradoException;
@@ -97,7 +97,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var problema = ProblemDetail.forStatusAndDetail(
                 HttpStatus.CONFLICT,
                 ex.getMessage());
-        problema.setTitle("CategoriaRepository Já Existe");
+        problema.setTitle("Categoria Já Existe");
 
         return problema;
     }

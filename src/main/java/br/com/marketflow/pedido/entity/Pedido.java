@@ -1,6 +1,6 @@
 package br.com.marketflow.pedido.entity;
 
-import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
+import br.com.marketflow.pedido.exception.TransicaoStatusInvalidaException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

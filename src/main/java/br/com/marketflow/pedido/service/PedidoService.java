@@ -3,7 +3,7 @@ package br.com.marketflow.pedido.service;
 import br.com.marketflow.carrinho.entity.ItemCarrinho;
 import br.com.marketflow.carrinho.exception.CarrinhoVazioException;
 import br.com.marketflow.carrinho.service.CarrinhoService;
-import br.com.marketflow.estoque.exception.TransicaoStatusInvalidaException;
+import br.com.marketflow.pedido.exception.TransicaoStatusInvalidaException;
 import br.com.marketflow.estoque.service.EstoqueService;
 import br.com.marketflow.infra.dto.PaginaResponseDTO;
 import br.com.marketflow.pagamento.dto.PagamentoResponseDTO;

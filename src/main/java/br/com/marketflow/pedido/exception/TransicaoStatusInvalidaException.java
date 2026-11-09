@@ -1,4 +1,4 @@
-package br.com.marketflow.estoque.exception;
+package br.com.marketflow.pedido.exception;
 
 public class TransicaoStatusInvalidaException extends RuntimeException {
 
