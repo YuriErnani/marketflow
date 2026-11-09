@@ -1,5 +1,6 @@
 package br.com.marketflow.usuario.dto.autenticacao;
 
+import br.com.marketflow.infra.validation.TamanhoMaximoEmBytes;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -15,5 +16,7 @@ public record CadastroRequestDTO(
         String email,
 
         @NotBlank
-        @Size(min = 8, max = 72) String senha
+        @Size(min = 8)
+        @TamanhoMaximoEmBytes(72)
+        String senha
 ) {}
