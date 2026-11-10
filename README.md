@@ -1,90 +1,59 @@
-# MarketFlow API
+# 🛒 MarketFlow API
 
 [![CI](https://github.com/YuriErnani/marketflow/actions/workflows/ci.yml/badge.svg)](https://github.com/YuriErnani/marketflow/actions/workflows/ci.yml)
 
-API REST de e-commerce desenvolvida com **Java** e **Spring Boot**. Clientes consultam o catálogo, montam o carrinho, compram e acompanham seus pedidos; administradores gerenciam categorias, produtos, estoque e o andamento dos pedidos.
+**MarketFlow** is a **RESTful e-commerce API** built with **Java** and **Spring Boot**. Customers browse the catalog, fill their cart, place orders and pay for them, while administrators manage categories, products, stock and order fulfillment.
 
-O projeto simula as preocupações de um sistema comercial real: consistência dos dados em transações, concorrência na venda da última unidade, pagamentos idempotentes, segurança com JWT e entrega automatizada com CI e deploy.
+The project was designed to simulate the concerns of a real commercial system: **data consistency**, **concurrency** on the last item in stock, **idempotent payments**, **JWT security** and an automated **CI/CD pipeline**, from the first commit to the deploy.
 
-**Demonstração:** [documentação interativa (Swagger)](https://marketflow-xvjb.onrender.com/swagger-ui.html)
+🌐 **Live demo:** [Swagger UI](https://marketflow-xvjb.onrender.com/swagger-ui.html)
 
-> A demonstração roda no plano gratuito do Render: depois de 15 minutos sem acesso, o primeiro carregamento leva cerca de 1 minuto.
+> ⏳ The demo runs on Render's free plan. After 15 minutes without traffic, the first request may take around 1 minute while the application wakes up.
 
----
+> 🇧🇷 The API was built in Portuguese, so routes and JSON fields use Portuguese names (for example, `produtos` = products and `pedidos` = orders).
 
-## Sumário
 
-- [Tecnologias](#tecnologias)
-- [Funcionalidades](#funcionalidades)
-- [Arquitetura](#arquitetura)
-- [Decisões técnicas](#decisões-técnicas)
-- [Como executar](#como-executar)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
-- [Documentação da API](#documentação-da-api)
-- [Exemplos de requisições](#exemplos-de-requisições)
-- [Testes](#testes)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Limitações e próximos passos](#limitações-e-próximos-passos)
+## 🚀 Features
 
----
+### 👤 Users and authentication
+- ✅ Public customer registration, always with the `CLIENTE` (customer) role.
+- ✅ JWT login, with tokens valid for 2 hours.
+- ✅ View and update your own account, change password and deactivate the account.
+- ✅ Deactivated accounts lose access immediately, even with a token that has not expired.
+- ✅ First administrator created automatically on startup from environment variables.
 
-## Tecnologias
+### 🏷️ Catalog
+- ✅ Categories and products managed by administrators, with public read access.
+- ✅ Paginated listing with name search, category and price range filters, and sorting.
+- ✅ Inactive products are hidden from the public.
+- ✅ Customers see whether a product is available, but not the exact stock quantity.
 
-| Categoria | Tecnologia |
-|---|---|
-| Linguagem | Java 21 |
-| Framework | Spring Boot 4.1 (Web MVC, Data JPA, Security, Validation, Actuator) |
-| Persistência | PostgreSQL 17, Hibernate, Flyway |
-| Segurança | JWT (`java-jwt`), BCrypt |
-| Documentação | springdoc-openapi (Swagger UI) |
-| Infraestrutura | Docker, Docker Compose |
-| CI/CD | GitHub Actions, Render (aplicação), Neon (banco) |
-| Testes | Coleção do Postman com testes automáticos de ponta a ponta |
-| Produtividade | Lombok |
+### 📦 Stock
+- ✅ Separate **available** and **reserved** quantities.
+- ✅ Stock entries and a complete movement history.
 
----
+### 🛒 Cart
+- ✅ One cart per customer, with subtotals and total always calculated from current server prices.
+- ✅ Stock availability checked when adding items.
 
-## Funcionalidades
+### 🧾 Orders
+- ✅ Checkout with a snapshot of each item's name and price.
+- ✅ Stock reserved at checkout and written off when the payment is approved.
+- ✅ Cancellation releases or returns the stock, depending on the order status.
+- ✅ Unpaid orders automatically expire after 30 minutes.
 
-### Usuários e autenticação
-- Cadastro público de clientes, sempre com o perfil `CLIENTE`.
-- Login com JWT válido por 2 horas.
-- Consulta e atualização da própria conta, troca de senha e desativação da conta.
-- Conta desativada perde o acesso imediatamente, mesmo com um token ainda válido.
-- Primeiro administrador criado automaticamente na inicialização, a partir de variáveis de ambiente.
+### 💳 Payments (simulated)
+- ✅ Simulated approval or rejection, with no card data stored.
+- ✅ Idempotency through the `Idempotency-Key` header: repeating a request never charges twice.
+- ✅ Approved payments are refunded when a paid order is cancelled.
 
-### Catálogo
-- Categorias e produtos gerenciados pelo administrador; consulta pública.
-- Listagem paginada, com busca por nome, filtros por categoria e faixa de preço e ordenação controlada.
-- Produtos inativos ficam ocultos para o público.
-- O público vê se um produto está disponível, mas não a quantidade exata em estoque.
-
-### Estoque
-- Saldos separados de unidades **disponíveis** e **reservadas**.
-- Entradas de mercadoria e histórico completo de movimentações.
-
-### Carrinho
-- Um carrinho por cliente, com subtotais e total sempre calculados com os preços atuais do servidor.
-- Validação de disponibilidade ao adicionar itens.
-
-### Pedidos
-- Finalização da compra com cópia (snapshot) do nome e do preço de cada item.
-- Reserva de estoque na compra e baixa na aprovação do pagamento.
-- Cancelamento com liberação ou devolução do estoque, conforme o momento.
-- Expiração automática de pedidos não pagos após 30 minutos.
-
-### Pagamentos (simulados)
-- Aprovação ou recusa simulada, sem dados de cartão.
-- Idempotência pelo cabeçalho `Idempotency-Key`: repetir a requisição nunca cobra duas vezes.
-- Estorno do pagamento quando um pedido pago é cancelado.
-
-### Ciclo de vida do pedido
+### 🔄 Order lifecycle
 
 ```mermaid
 stateDiagram-v2
-    [*] --> AGUARDANDO_PAGAMENTO: finalizar compra
-    AGUARDANDO_PAGAMENTO --> PAGAMENTO_APROVADO: pagamento aprovado
-    AGUARDANDO_PAGAMENTO --> CANCELADO: cancelamento ou expiração
+    [*] --> AGUARDANDO_PAGAMENTO: checkout
+    AGUARDANDO_PAGAMENTO --> PAGAMENTO_APROVADO: payment approved
+    AGUARDANDO_PAGAMENTO --> CANCELADO: cancellation or expiration
     PAGAMENTO_APROVADO --> EM_PREPARACAO: admin
     PAGAMENTO_APROVADO --> CANCELADO: admin
     EM_PREPARACAO --> ENVIADO: admin
@@ -94,114 +63,138 @@ stateDiagram-v2
     CANCELADO --> [*]
 ```
 
-| Evento | Estoque disponível | Estoque reservado | Movimentação |
-|---|---|---|---|
-| Finalizar compra | − quantidade | + quantidade | `RESERVA` |
-| Pagamento aprovado | — | − quantidade | `BAIXA` |
-| Cancelar antes do pagamento | + quantidade | − quantidade | `LIBERACAO` |
-| Cancelar depois do pagamento | + quantidade | — | `DEVOLUCAO` |
+| Status | Meaning |
+| :--- | :--- |
+| `AGUARDANDO_PAGAMENTO` | Awaiting payment |
+| `PAGAMENTO_APROVADO` | Payment approved |
+| `EM_PREPARACAO` | Being prepared |
+| `ENVIADO` | Shipped |
+| `ENTREGUE` | Delivered |
+| `CANCELADO` | Cancelled |
 
----
 
-## Arquitetura
+## 🛠️ Technologies Used
 
-**Monólito modular**: uma única aplicação, organizada por áreas de negócio. Cada módulo tem suas camadas, e a comunicação entre módulos acontece pelos services, nunca acessando diretamente o repository de outro módulo.
+- ☕ **Java 21** – records, switch expressions and `BigDecimal` for money
+- 🌱 **Spring Boot 4** – Web MVC, Data JPA, Security, Validation and Actuator
+- 🔐 **Spring Security + JWT** (`java-jwt`) – stateless authentication with a custom filter and BCrypt
+- 🗄️ **PostgreSQL 17** + **Hibernate** – persistence and object-relational mapping
+- 🧱 **Flyway** – versioned database migrations
+- 📚 **springdoc-openapi** – Swagger/OpenAPI 3 documentation
+- 🐳 **Docker** + **Docker Compose** – containerized application and database
+- ⚙️ **GitHub Actions** – continuous integration
+- ☁️ **Render** + **Neon** – application and database hosting
+- 🧪 **Postman** – end-to-end API tests
+- ✂️ **Lombok** – less boilerplate code
+- 📦 **Maven** – dependency management and build
+
+
+## 🏗️ Architecture
+
+The project follows a **modular monolith** approach: a single application organized by business area. Each module has its own layers, and modules talk to each other through services, never by accessing another module's repository.
 
 ```text
-Cliente HTTP → Filtro JWT → Controller → Service → Repository → PostgreSQL
+HTTP client → JWT filter → Controller → Service → Repository → PostgreSQL
 ```
 
-| Camada | Responsabilidade |
-|---|---|
-| Controller | Recebe a requisição, valida o DTO e devolve a resposta |
-| Service | Regras de negócio e transações |
-| Entity | Estado e regras que protegem a própria consistência |
-| Repository | Acesso ao banco |
+| Layer | Responsibility |
+| :--- | :--- |
+| `Controller` | Receives the request, validates the DTO and returns the response |
+| `Service` | Business rules and transactions |
+| `Entity` | State and the rules that protect its own consistency |
+| `Repository` | Database access |
 
-Os módulos são `usuario`, `categoria`, `produto`, `estoque`, `carrinho`, `pedido` e `pagamento`, além de `infra`, com segurança, configuração, validação e tratamento de erros compartilhados.
+Modules: `usuario` (users), `categoria` (categories), `produto` (products), `estoque` (stock), `carrinho` (cart), `pedido` (orders) and `pagamento` (payments), plus `infra`, with shared security, configuration, validation and error handling.
 
----
 
-## Decisões técnicas
+## 💡 Technical Decisions
 
-| Problema | Solução |
-|---|---|
-| Duas compras simultâneas da última unidade | Bloqueio pessimista (`SELECT ... FOR UPDATE`) no estoque. A segunda compra espera a primeira terminar e recebe `409` |
-| Deadlock entre compras com vários produtos | Os estoques são sempre bloqueados na mesma ordem, por `produtoId` |
-| Cancelamentos simultâneos do mesmo pedido | Bloqueio pessimista no pedido, com nova conferência do status |
-| Pagamento repetido por falha de rede | Chave de idempotência única no banco; a repetição devolve o resultado original com `200` |
-| Preço alterado depois da compra | Os itens do pedido guardam o nome e o preço praticados no momento da compra |
-| Cliente enviando preços falsos | O cliente envia apenas produtos, quantidades e endereço; valores são calculados no servidor |
-| Pedidos não pagos prendendo estoque | Tarefa agendada que cancela pedidos pendentes há mais de 30 minutos, cada um em sua própria transação |
-| Problema N+1 | `@EntityGraph` nas consultas com relacionamentos e buscas em lote (`IN`) de produtos e estoques |
-| Evolução do banco | Migrations versionadas com Flyway e `ddl-auto=validate` no Hibernate |
-| Valores monetários | `BigDecimal` na aplicação e `NUMERIC` no banco |
-| Respostas de erro | Padrão Problem Details (RFC 9457) em todos os erros, inclusive `401` e `403` |
-| Dependência circular entre pedidos e pagamentos | Dependência em uma única direção: o `PedidoService` coordena o `PagamentoService` |
-| Senhas longas no BCrypt | Validação própria que limita a senha a 72 bytes, e não a 72 caracteres |
-| Recurso de outro cliente | Responde `404`, e não `403`, para não revelar que o recurso existe |
+| Challenge | Solution |
+| :--- | :--- |
+| 🔒 Two customers buying the last item at the same time | Pessimistic locking (`SELECT ... FOR UPDATE`) on stock. The second purchase waits for the first one and receives `409` |
+| 🔁 Deadlocks between orders with several products | Stock rows are always locked in the same order, by product ID |
+| 💳 Payment repeated after a network failure | Unique idempotency key in the database. The retry returns the original result with `200` |
+| 🧾 Price changed after the purchase | Order items keep the name and price from the moment of purchase |
+| 🛡️ Client sending fake prices | The client only sends products, quantities and address. All amounts are calculated on the server |
+| ⏱️ Unpaid orders holding stock | Scheduled task that cancels orders pending for more than 30 minutes, each one in its own transaction |
+| ⚡ N+1 query problem | `@EntityGraph` on queries with relationships and batch (`IN`) queries for products and stock |
+| 🗄️ Database evolution | Versioned Flyway migrations, with Hibernate set to `ddl-auto=validate` |
+| 💰 Monetary values | `BigDecimal` in the application and `NUMERIC` in the database |
+| ❗ Error responses | Problem Details (RFC 9457) for every error, including `401` and `403` |
+| 🔗 Circular dependency between orders and payments | One-way dependency: `PedidoService` coordinates `PagamentoService` |
+| 🔑 Long passwords in BCrypt | Custom validation that limits passwords to 72 bytes, not 72 characters |
+| 🕵️ Accessing another customer's data | Returns `404` instead of `403`, so the resource's existence is not revealed |
 
----
 
-## Como executar
+## 📋 Prerequisites
 
-### Opção 1: Docker Compose (recomendada)
+To run this application you need:
 
-Pré-requisitos: [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+- ✅ Git
+- ✅ [Docker Desktop](https://www.docker.com/products/docker-desktop/) **or** Java JDK 21 + PostgreSQL
+
+
+## 📥 How to Configure the Project
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/YuriErnani/marketflow.git
 cd marketflow
-cp .env.example .env     # no Windows: copy .env.example .env
 ```
 
-Edite o `.env` com seus valores e suba a aplicação e o banco:
+### 2. Create the Environment File
+
+```bash
+cp .env.example .env
+```
+
+> On Windows, use `copy .env.example .env`.
+
+Then fill in the values in `.env`. This file is ignored by Git and must never be committed.
+
+### 3. Run with Docker Compose (recommended)
 
 ```bash
 docker compose up -d --build
 ```
 
-A API fica disponível em `http://localhost:8080`. O Flyway cria as tabelas e o administrador é criado automaticamente.
+The API will be available at `http://localhost:8080`. Flyway creates the tables and the administrator is created automatically.
 
 ```bash
-docker compose ps          # estado dos contêineres
-docker compose logs -f app # logs da aplicação
-docker compose down        # desliga, mantendo os dados
+docker compose ps          # container status
+docker compose logs -f app # application logs
+docker compose down        # stop everything, keeping the data
 ```
 
-### Opção 2: Localmente
+### 3.1 Or Run Locally
 
-Pré-requisitos: Java 21 e PostgreSQL.
-
-1. Crie um banco e um usuário no PostgreSQL.
-2. Copie o `.env.example` para `.env` e preencha os valores.
-3. Execute:
+With Java 21 and a PostgreSQL database already created:
 
 ```bash
-./mvnw spring-boot:run     # no Windows: mvnw.cmd spring-boot:run
+./mvnw spring-boot:run
 ```
 
----
+> On Windows, use `mvnw.cmd spring-boot:run`.
 
-## Variáveis de ambiente
 
-O arquivo `.env` fica fora do Git. Use o [`.env.example`](.env.example) como modelo.
+## 🔑 Environment Variables
 
-| Variável | Obrigatória | Descrição |
-|---|---|---|
-| `DB_NAME` | Sim | Nome do banco |
-| `DB_USER` | Sim | Usuário do banco |
-| `DB_PASSWORD` | Sim | Senha do banco |
-| `JWT_SECRET` | Sim | Chave usada para assinar os tokens |
-| `ADMIN_EMAIL` | Não | E-mail do primeiro administrador |
-| `ADMIN_PASSWORD` | Não | Senha do primeiro administrador |
-| `DB_HOST` | Não | Host do banco (padrão: `localhost`) |
-| `DB_PORT` | Não | Porta do banco (padrão: `5432`) |
-| `DB_URL` | Não | Endereço JDBC completo; substitui `DB_HOST`, `DB_PORT` e `DB_NAME` |
-| `PEDIDO_EXPIRACAO_MINUTOS` | Não | Tempo para expirar pedidos não pagos (padrão: `30`) |
-| `PORT` | Não | Porta da aplicação (padrão: `8080`) |
+| Variable | Required | Description |
+| :--- | :--- | :--- |
+| `DB_NAME` | ✅ | Database name |
+| `DB_USER` | ✅ | Database user |
+| `DB_PASSWORD` | ✅ | Database password |
+| `JWT_SECRET` | ✅ | Key used to sign tokens |
+| `ADMIN_EMAIL` | ➖ | First administrator's email |
+| `ADMIN_PASSWORD` | ➖ | First administrator's password |
+| `DB_HOST` | ➖ | Database host (default: `localhost`) |
+| `DB_PORT` | ➖ | Database port (default: `5432`) |
+| `DB_URL` | ➖ | Full JDBC URL. Replaces `DB_HOST`, `DB_PORT` and `DB_NAME` |
+| `PEDIDO_EXPIRACAO_MINUTOS` | ➖ | Minutes before unpaid orders expire (default: `30`) |
+| `PORT` | ➖ | Application port (default: `8080`) |
 
-Para gerar uma chave JWT no PowerShell:
+To generate a random JWT secret with PowerShell:
 
 ```powershell
 $bytes = New-Object byte[] 32
@@ -209,63 +202,48 @@ $bytes = New-Object byte[] 32
 [Convert]::ToBase64String($bytes)
 ```
 
----
 
-## Documentação da API
+## 📖 API Documentation
 
-Com a aplicação rodando, acesse:
+With the application running, the interactive documentation is available at:
 
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
-- **OpenAPI (JSON):** `http://localhost:8080/v3/api-docs`
+- 📚 **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- 📄 **OpenAPI (JSON):** `http://localhost:8080/v3/api-docs`
 
-Para testar rotas protegidas, faça login, clique em **Authorize** e cole o token.
+To call protected routes, log in, click **Authorize** and paste the token. Every route starts with `/api/v1`.
 
-### Rotas
+| Icon | Access |
+| :---: | :--- |
+| 🌍 | Public |
+| 👤 | Any authenticated user |
+| 🛍️ | Customer |
+| 🛡️ | Administrator |
 
-Todas as rotas começam com `/api/v1`.
 
-| Módulo | Rota | Acesso |
-|---|---|---|
-| Autenticação | `POST /auth/cadastro`, `POST /auth/login` | Público |
-| Minha conta | `GET`, `PUT`, `DELETE /usuarios/minha-conta`, `PUT /usuarios/minha-conta/senha` | Autenticado |
-| Categorias | `GET /categorias`, `GET /categorias/{id}` | Público |
-| Categorias | `POST /categorias`, `PUT /categorias/{id}` | Admin |
-| Produtos | `GET /produtos`, `GET /produtos/{id}` | Público |
-| Produtos | `POST /produtos`, `PUT /produtos/{id}`, `PATCH /produtos/{id}/ativacao` | Admin |
-| Estoque | `GET /estoque/{produtoId}`, `POST /estoque/{produtoId}/entradas`, `GET /estoque/{produtoId}/movimentacoes` | Admin |
-| Carrinho | `GET /carrinho`, `POST /carrinho/itens`, `PUT` e `DELETE /carrinho/itens/{produtoId}` | Cliente |
-| Pedidos | `POST /pedidos` | Cliente |
-| Pedidos | `GET /pedidos`, `GET /pedidos/{id}`, `POST /pedidos/{id}/cancelamento` | Dono do pedido ou admin |
-| Pedidos | `PATCH /pedidos/{id}/status` | Admin |
-| Pagamentos | `POST /pedidos/{id}/pagamentos` | Dono do pedido |
-| Pagamentos | `GET /pedidos/{id}/pagamentos` | Dono do pedido ou admin |
+### 🔐 Authentication
 
----
-
-## Exemplos de requisições
-
-### Cadastro e login
+#### 🌍 Register a Customer
 
 ```http
-POST /api/v1/auth/cadastro
-Content-Type: application/json
-
-{
-  "nome": "Ana Silva",
-  "email": "ana@email.com",
-  "senha": "senha12345"
-}
+  POST /api/v1/auth/cadastro
 ```
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `nome` | `string` | **Mandatory**. Customer's name, up to 120 characters |
+| `email` | `string` | **Mandatory**. A valid, unique email |
+| `senha` | `string` | **Mandatory**. Password with at least 8 characters and up to 72 bytes |
+
+#### 🌍 Log In
 
 ```http
-POST /api/v1/auth/login
-Content-Type: application/json
-
-{
-  "email": "ana@email.com",
-  "senha": "senha12345"
-}
+  POST /api/v1/auth/login
 ```
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `email` | `string` | **Mandatory**. Registered email |
+| `senha` | `string` | **Mandatory**. Password |
 
 ```json
 {
@@ -274,47 +252,153 @@ Content-Type: application/json
 }
 ```
 
-### Listagem de produtos com filtros
+
+### 👤 My Account
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/usuarios/minha-conta` | 👤 View your account |
+| `PUT` | `/api/v1/usuarios/minha-conta` | 👤 Update `nome` and `email` |
+| `PUT` | `/api/v1/usuarios/minha-conta/senha` | 👤 Change password with `senhaAtual` and `novaSenha` |
+| `DELETE` | `/api/v1/usuarios/minha-conta` | 👤 Deactivate your account |
+
+
+### 🏷️ Categories
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/categorias` | 🌍 List categories |
+| `GET` | `/api/v1/categorias/{id}` | 🌍 Get a category |
+| `POST` | `/api/v1/categorias` | 🛡️ Create a category with `nome` and `descricao` |
+| `PUT` | `/api/v1/categorias/{id}` | 🛡️ Update a category |
+
+
+### 📦 Products
+
+#### 🌍 List Products
 
 ```http
-GET /api/v1/produtos?nome=note&categoriaId=1&precoMin=100&precoMax=5000&sort=preco,desc&page=0&size=10
+  GET /api/v1/produtos
 ```
 
-### Compra e pagamento
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `nome` | `string` | **Optional**. Search by name, case-insensitive |
+| `categoriaId` | `long` | **Optional**. Filter by category |
+| `precoMin` | `BigDecimal` | **Optional**. Minimum price |
+| `precoMax` | `BigDecimal` | **Optional**. Maximum price |
+| `page` | `integer` | **Optional**. Page number, starting at 0 |
+| `size` | `integer` | **Optional**. Page size. The default is 10 and the maximum is 50 |
+| `sort` | `string` | **Optional**. `nome`, `preco` or `criadoEm`, such as `preco,desc` |
+
+#### 🛡️ Create a Product
 
 ```http
-POST /api/v1/carrinho/itens
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "produtoId": 1,
-  "quantidade": 2
-}
+  POST /api/v1/produtos
 ```
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `nome` | `string` | **Mandatory**. Product name, up to 120 characters |
+| `descricao` | `string` | **Optional**. Description, up to 1000 characters |
+| `preco` | `BigDecimal` | **Mandatory**. Price greater than zero, with up to 2 decimal places |
+| `categoriaId` | `long` | **Mandatory**. An existing category |
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/produtos/{id}` | 🌍 Get a product |
+| `PUT` | `/api/v1/produtos/{id}` | 🛡️ Update a product |
+| `PATCH` | `/api/v1/produtos/{id}/ativacao` | 🛡️ Activate or deactivate it with `{"ativo": true}` |
+
+
+### 📊 Stock
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/estoque/{produtoId}` | 🛡️ Available and reserved quantities |
+| `POST` | `/api/v1/estoque/{produtoId}/entradas` | 🛡️ Add stock with `quantidade` (1 to 10,000) |
+| `GET` | `/api/v1/estoque/{produtoId}/movimentacoes` | 🛡️ Paginated movement history |
+
+
+### 🛒 Cart
+
+#### 🛍️ Add an Item
 
 ```http
-POST /api/v1/pedidos
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "enderecoEntrega": "Rua das Flores, 123 - Centro - Fortaleza/CE"
-}
+  POST /api/v1/carrinho/itens
 ```
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `produtoId` | `long` | **Mandatory**. An active product with stock |
+| `quantidade` | `integer` | **Mandatory**. From 1 to 100. Adds to the existing quantity |
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/carrinho` | 🛍️ View items, subtotals and total |
+| `PUT` | `/api/v1/carrinho/itens/{produtoId}` | 🛍️ Set an item's `quantidade` |
+| `DELETE` | `/api/v1/carrinho/itens/{produtoId}` | 🛍️ Remove an item |
+
+
+### 🧾 Orders
+
+#### 🛍️ Checkout
 
 ```http
-POST /api/v1/pedidos/1/pagamentos
-Authorization: Bearer <token>
-Idempotency-Key: 2b9f1c7e-pagamento-1
-Content-Type: application/json
-
-{
-  "resultadoSimulado": "APROVADO"
-}
+  POST /api/v1/pedidos
 ```
 
-### Formato dos erros
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `enderecoEntrega` | `string` | **Mandatory**. Delivery address, up to 500 characters |
+
+Items, quantities and prices come from the cart and the server, never from the request.
+
+#### 🛡️ Update the Status
+
+```http
+  PATCH /api/v1/pedidos/{id}/status
+```
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `status` | `string` | **Mandatory**. The next step: `EM_PREPARACAO`, `ENVIADO` or `ENTREGUE` |
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/pedidos` | 👤 List orders. Customers see their own, admins see all |
+| `GET` | `/api/v1/pedidos/{id}` | 👤 Order details with items |
+| `POST` | `/api/v1/pedidos/{id}/cancelamento` | 👤 Cancel. Customers can only cancel orders awaiting payment |
+
+
+### 💳 Payments
+
+#### 🛍️ Pay for an Order
+
+```http
+  POST /api/v1/pedidos/{id}/pagamentos
+```
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `Idempotency-Key` | `header` | **Mandatory**. Unique key for each payment attempt, up to 100 characters |
+| `resultadoSimulado` | `string` | **Mandatory**. `APROVADO` (approved) or `RECUSADO` (rejected) |
+
+| Situation | Response |
+| :--- | :--- |
+| New key | Processes the payment and returns `201` |
+| Same key, same order | Returns the original payment with `200`, without processing it again |
+| Same key, another order | `409` |
+| Order not awaiting payment | `409` |
+
+| Method | Route | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/pedidos/{id}/pagamentos` | 👤 List the order's payment attempts |
+
+
+### ❗ Error Format
+
+Every error follows the Problem Details standard (RFC 9457):
 
 ```json
 {
@@ -326,49 +410,47 @@ Content-Type: application/json
 }
 ```
 
----
 
-## Testes
+## 🧪 Tests
 
-### Coleção do Postman
+### 📮 Postman Collection
 
-A pasta [`postman`](postman) contém uma coleção que testa a API de ponta a ponta, da autenticação à disponibilidade dos produtos, com centenas de verificações automáticas.
+The [`postman`](postman) folder contains an end-to-end collection that tests the whole API, from authentication to product availability, with hundreds of automatic assertions.
 
-1. Importe o arquivo `postman/marketflow.postman_collection.json` no Postman.
-2. Crie um ambiente com as variáveis `adminEmail` e `adminSenha`, iguais às do seu `.env`, e selecione-o.
-3. Com a API rodando, execute a coleção pelo **Runner**.
+1. Import `postman/marketflow.postman_collection.json` into Postman.
+2. Create an environment with `adminEmail` and `adminSenha`, matching your `.env`, and select it.
+3. With the API running, execute the collection with the **Runner**.
 
-Cada execução cria seus próprios dados, então a coleção pode ser repetida sem limpar o banco.
+Each run creates its own data, so the collection can be executed repeatedly without cleaning the database.
 
-### Integração contínua
+### ⚙️ Continuous Integration
 
-A cada `push` ou pull request na `main`, o GitHub Actions:
+On every `push` or pull request to `main`, GitHub Actions:
 
-1. Sobe um PostgreSQL temporário.
-2. Compila o projeto e inicia a aplicação, aplicando todas as migrations em um banco vazio e validando as entidades.
-3. Monta a imagem Docker.
+1. ✅ Starts a temporary PostgreSQL database.
+2. ✅ Builds the project and starts the application, applying every migration on an empty database and validating the entities.
+3. ✅ Builds the Docker image.
 
-Quando o CI é aprovado, o Render publica a nova versão automaticamente.
+When CI passes, Render deploys the new version automatically.
 
----
 
-## Estrutura do projeto
+## 📁 Project Structure
 
 ```text
 marketflow
-├── .github/workflows/ci.yml        # Pipeline de CI
-├── postman/                        # Coleção de testes da API
+├── .github/workflows/ci.yml        # CI pipeline
+├── postman/                        # API test collection
 ├── src/main/java/br/com/marketflow
-│   ├── carrinho/
-│   ├── categoria/
-│   ├── estoque/
-│   ├── infra/                      # Segurança, configuração, validação e erros
-│   ├── pagamento/
-│   ├── pedido/
-│   ├── produto/
-│   └── usuario/
+│   ├── carrinho/                   # Cart
+│   ├── categoria/                  # Categories
+│   ├── estoque/                    # Stock
+│   ├── infra/                      # Security, configuration, validation and errors
+│   ├── pagamento/                  # Payments
+│   ├── pedido/                     # Orders
+│   ├── produto/                    # Products
+│   └── usuario/                    # Users
 ├── src/main/resources
-│   ├── db/migration/               # Migrations do Flyway (V1 a V8)
+│   ├── db/migration/               # Flyway migrations (V1 to V8)
 │   └── application.properties
 ├── .env.example
 ├── compose.yaml
@@ -376,21 +458,23 @@ marketflow
 └── pom.xml
 ```
 
-Cada módulo de negócio segue a mesma organização: `controller`, `service`, `repository`, `entity`, `dto` e `exception`.
+Each business module follows the same structure: `controller`, `service`, `repository`, `entity`, `dto` and `exception`.
 
----
 
-## Limitações e próximos passos
+## 🔭 Next Steps
 
-- **Pagamentos simulados:** integrar um gateway real em ambiente de testes, como Mercado Pago ou Stripe.
-- **Tokens após a troca de senha:** os tokens antigos continuam válidos até expirar, em no máximo 2 horas.
-- **Tentativas de login:** adicionar limite de tentativas para dificultar ataques de força bruta.
-- **Refresh token:** renovar a sessão sem pedir a senha novamente.
-- **Testes automatizados em Java:** testes unitários das entidades e testes de integração.
-- **Expiração na demonstração:** no plano gratuito, a aplicação dorme sem acessos, e a expiração dos pedidos só acontece quando ela está ativa.
+- 💳 Integrate a real payment gateway in sandbox mode, such as Mercado Pago or Stripe.
+- 🔑 Invalidate existing tokens after a password change.
+- 🚦 Limit login attempts to prevent brute-force attacks.
+- 🔄 Add refresh tokens.
+- 🧪 Add unit and integration tests in Java.
 
----
 
-## Autor
+## 🏁 Conclusion
 
-Desenvolvido por **Yuri Ernani** — [GitHub](https://github.com/YuriErnani)
+Building MarketFlow was an opportunity to apply, in a complete project, the technologies a Java back-end developer uses day to day: Spring Boot, Spring Security with JWT, Spring Data JPA, PostgreSQL, Flyway, Docker and CI/CD. Beyond making it work, the goal was to understand why each technology is there and how they fit together, from the first commit to the deploy.
+
+
+## 👨‍💻 Author
+
+Developed by **Yuri Ernani** – [GitHub](https://github.com/YuriErnani)
