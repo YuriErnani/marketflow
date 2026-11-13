@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 340" width="1000" height="340">
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#656C76"/>
+  </marker>
+  <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#4F46E5"/><stop offset="1" stop-color="#06B6D4"/>
+  </linearGradient>
+</defs>
+<rect x="12" y="118" width="128" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="76.0" y="147.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">HTTP client</text>
+<text x="76.0" y="165.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">Swagger · Postman</text>
+<rect x="176" y="24" width="640" height="292" rx="14" fill="#151B23" stroke="#3D444D" stroke-width="1.5"/>
+<rect x="196" y="46" width="4" height="16" rx="2" fill="url(#brand)"/>
+<text x="208" y="59" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="600" fill="#F0F6FC">Spring Boot application</text>
+<text x="796" y="59" text-anchor="end" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" fill="#9198A1">Docker container on Render</text>
+<rect x="196" y="118" width="136" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="264.0" y="147.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">JWT filter</text>
+<text x="264.0" y="165.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">Spring Security</text>
+<rect x="354" y="118" width="136" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="422.0" y="147.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">Controllers</text>
+<text x="422.0" y="165.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">Web MVC · Validation</text>
+<rect x="512" y="118" width="136" height="64" rx="10" fill="#0D1117" stroke="#818CF8" stroke-width="1.5"/>
+<text x="580.0" y="147.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">Services</text>
+<text x="580.0" y="165.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">rules · @Transactional</text>
+<rect x="670" y="118" width="136" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="738.0" y="147.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">Repositories</text>
+<text x="738.0" y="165.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">Spring Data JPA</text>
+<line x1="334" y1="150.0" x2="352" y2="150.0" stroke="#656C76" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="492" y1="150.0" x2="510" y2="150.0" stroke="#656C76" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="650" y1="150.0" x2="668" y2="150.0" stroke="#656C76" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="142" y1="150.0" x2="194" y2="150.0" stroke="#656C76" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="196" y="228" width="136" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="264.0" y="257.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">Error handler</text>
+<text x="264.0" y="275.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">Problem Details</text>
+<rect x="512" y="228" width="136" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="580.0" y="257.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">Expiration job</text>
+<text x="580.0" y="275.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">@Scheduled · 1 min</text>
+<rect x="670" y="228" width="136" height="64" rx="10" fill="#0D1117" stroke="#3D444D" stroke-width="1.5"/>
+<text x="738.0" y="257.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">Flyway</text>
+<text x="738.0" y="275.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">migrations V1–V8</text>
+<line x1="580.0" y1="226" x2="580.0" y2="184" stroke="#656C76" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="264.0" y1="184" x2="264.0" y2="226" stroke="#656C76" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+<path d="M422.0,184 V260.0 H334" fill="none" stroke="#656C76" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+<path d="M852,116 v68 a68.0,12 0 0 0 136,0 v-68" fill="#0D1117" stroke="#818CF8" stroke-width="1.5"/>
+<ellipse cx="920.0" cy="116" rx="68.0" ry="12" fill="#0D1117" stroke="#818CF8" stroke-width="1.5"/>
+<text x="920.0" y="160" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#F0F6FC">PostgreSQL 17</text>
+<text x="920.0" y="178" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" fill="#9198A1">Neon in production</text>
+<line x1="808" y1="150.0" x2="850" y2="150.0" stroke="#656C76" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M808,260.0 H920.0 V200" fill="none" stroke="#656C76" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+<text x="829.0" y="142.0" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" fill="#9198A1">JDBC</text>
+</svg>
